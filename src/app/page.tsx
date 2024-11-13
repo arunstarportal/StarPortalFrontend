@@ -1,101 +1,119 @@
-import Image from "next/image";
+import { Header } from "@/components/Header";
 
-export default function Home() {
+const protocolData = [
+  {
+    name: "Uniswap",
+    category: "Dexes",
+    tvl: "$3.972b",
+    fees: "$937,807",
+    revenue: "$0",
+    icon: "uniswap",
+  },
+  {
+    name: "Compound Finance",
+    category: "Lending",
+    tvl: "$1.914b",
+    fees: "$29,944",
+    revenue: "$4,828",
+    icon: "compound",
+  },
+  {
+    name: "AAVE",
+    category: "Lending",
+    tvl: "$11.933b",
+    fees: "$922,124",
+    revenue: "$340,549",
+    icon: "aave",
+  },
+  {
+    name: "Lido",
+    category: "Liquid Staking",
+    tvl: "$26.027b",
+    fees: "$2.09m",
+    revenue: "$208,733",
+    icon: "lido",
+  },
+  {
+    name: "Rocket Pool",
+    category: "Liquid Staking",
+    tvl: "$3.436b",
+    fees: "-",
+    revenue: "-",
+    icon: "rocketPool",
+  },
+  {
+    name: "Ondo Finance",
+    category: "RWA",
+    tvl: "$446.21m",
+    fees: "$446.21m",
+    revenue: "$446.21m",
+    icon: "ondo",
+  },
+];
+
+export default function Page() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen relative bg-gradient-to-b from-[#000] via-[#28282878] to-[#000] text-gray-200 p-6">
+      <Header />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <h1 className="text-2xl font-medium text-white my-8">
+        Trending Protocols
+      </h1>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead className="overflow-hidden">
+            <tr className="bg-[#171717c8]">
+              <th className="p-4 text-gray-400/80 text-xl font-light rounded-tl-lg rounded-bl-lg">
+                Name
+              </th>
+              <th className="p-4 text-gray-400/80 text-xl font-light">
+                Category
+              </th>
+              <th className="p-4 text-gray-400/80 text-xl font-light">TVL</th>
+              <th className="p-4 text-gray-400/80 text-xl font-light">
+                Fees 24h
+              </th>
+              <th className="p-4 text-gray-400/80 text-xl font-light rounded-tr-lg rounded-br-lg">
+                Revenue
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {protocolData.map((protocol, index) => (
+              <tr
+                key={index}
+                className="border-b border-[#2c2c2c] hover:bg-[#222222] transition-all duration-300 ease-in-out"
+              >
+                <td className="p-4 flex items-center space-x-4">
+                  <div className="bg-white/10 text-white/50 flex items-center justify-center text-sm font-medium w-8 h-8 rounded-full">
+                    {index + 1}
+                  </div>
+                  <img
+                    src={`/svgs/${protocol.icon}.svg`}
+                    alt={protocol.name}
+                    className="w-10 h-10 rounded-full ring-2 ring-[#2c2c2c]"
+                  />
+                  <div>
+                    <p className="text-white font-semibold">{protocol.name}</p>
+                    <p className="text-xs text-gray-500">{protocol.category}</p>
+                  </div>
+                </td>
+                <td className="p-4 text-gray-300">{protocol.category}</td>
+                <td className="p-4 font-medium text-green-400">
+                  {protocol.tvl}
+                </td>
+                <td className="p-4 text-blue-300">{protocol.fees}</td>
+                <td className="p-4 font-bold text-purple-400">
+                  {protocol.revenue}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
