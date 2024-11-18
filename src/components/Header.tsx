@@ -1,11 +1,19 @@
-export const Header = () => {
+export const Header = ({
+  searchTerm,
+  setSearchTerm,
+}: {
+  searchTerm: any;
+  setSearchTerm: any;
+}) => {
   return (
     <div className="flex items-center justify-between">
       <div className="relative w-full max-w-lg">
         <input
           type="text"
-          className="w-full pl-12 pr-4 py-3 bg-[#1e1e1e] border border-[#2c2c2c] rounded-full text-white placeholder-gray-500 focus:ring-1 focus:ring-[#3a3a3a] transition-all duration-300 outline-none"
+          className="w-full pl-14 py-3 bg-[#171717] rounded-full border border-gray-800 focus:border-gray-500 focus:ring-1 focus:ring-gray-500 outline-none transition-all"
           placeholder="Search Protocols"
+          onChange={(e) => setSearchTerm(e.target.value)}
+          value={searchTerm}
         />
         <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
           <svg
