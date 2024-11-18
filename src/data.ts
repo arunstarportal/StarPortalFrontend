@@ -15,7 +15,7 @@ export const protocolData = [
     fees: "$937,807",
     revenue: "$0",
     icon: "sushi",
-    slug: "uniswap",
+    slug: "sushiswap",
   },
   {
     name: "Compound Finance",
@@ -24,7 +24,7 @@ export const protocolData = [
     fees: "$29,944",
     revenue: "$4,828",
     icon: "compound",
-    slug: "uniswap",
+    slug: "compound",
   },
   {
     name: "AAVE",
@@ -33,16 +33,16 @@ export const protocolData = [
     fees: "$922,124",
     revenue: "$340,549",
     icon: "aave",
-    slug: "uniswap",
+    slug: "aave",
   },
   {
     name: "Lido",
-    category: "Liquid Staking",
+    category: "Liquid-Staking",
     tvl: "$26.027b",
     fees: "$2.09m",
     revenue: "$208,733",
     icon: "lido",
-    slug: "uniswap",
+    slug: "lido",
   },
   {
     name: "Rocket Pool",
@@ -51,7 +51,7 @@ export const protocolData = [
     fees: "-",
     revenue: "-",
     icon: "rocketPool",
-    slug: "uniswap",
+    slug: "rocketpool",
   },
   {
     name: "Ondo Finance",
@@ -60,7 +60,7 @@ export const protocolData = [
     fees: "$446.21m",
     revenue: "$446.21m",
     icon: "ondo",
-    slug: "uniswap",
+    slug: "ondo",
   },
   {
     name: "EigenLayer",
@@ -69,7 +69,7 @@ export const protocolData = [
     fees: "$446.21m",
     revenue: "$446.21m",
     icon: "eigenLayer",
-    slug: "uniswap",
+    slug: "eigenlayer",
   },
   {
     name: "EtherFi",
@@ -78,6 +78,6 @@ export const protocolData = [
     fees: "$446.21m",
     revenue: "$446.21m",
     icon: "etherfi",
-    slug: "uniswap",
+    slug: "etherfi",
   },
 ];

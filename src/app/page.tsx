@@ -90,7 +90,7 @@ export default function Page() {
         </div>
 
         <div className="bg-[#171717] rounded-xl overflow-hidden shadow-xl">
-          <div className="overflow-x-auto">
+          <div className="max-h-[70vh] overflow-y-auto overflow-x-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#1a1a1a]">
@@ -155,7 +155,7 @@ export default function Page() {
                         }
                         className="border-b border-[#2c2c2c] hover:bg-[#222222] transition-all duration-300"
                       >
-                        <td className="p-5">
+                        <td className="p-5 cursor-pointer">
                           <div className="flex items-center gap-4">
                             <div className="bg-[#212121] text-white flex items-center justify-center text-sm font-medium w-8 h-8 rounded-full">
                               {index + 1}

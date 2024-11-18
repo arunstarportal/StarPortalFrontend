@@ -40,7 +40,7 @@ const Page = () => {
   const [selectedProtocol, setSelectedProtocol] = useState("LIDO");
 
   return (
-    <div className="min-h-screen p-6 relative">
+    <div className="max-h-screen overflow-y-scroll p-6 relative">
       <div className="fixed inset-0 h-screen bg-gradient-to-b from-black to-white/10 -z-10"></div>
       <Header />
       <div className="max-w-7xl mx-auto my-10">

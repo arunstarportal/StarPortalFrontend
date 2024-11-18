@@ -11,7 +11,7 @@ import { useState } from "react";
 
 const Page = () => {
   return (
-    <div className="min-h-screen p-6 relative">
+    <div className="max-h-screen overflow-y-scroll p-6 relative">
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-black to-white/10 -z-10 " />
 
       <Header />
