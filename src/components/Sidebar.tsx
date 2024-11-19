@@ -77,7 +77,12 @@ export default function Sidebar() {
 
       {/* Network Stats */}
       {!isCollapsed && (
-        <div className="mx-5 my-4 p-3 bg-gray-800/20 rounded-lg overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.5 }}
+          className="mx-5 my-4 p-3 bg-gray-800/20 rounded-lg overflow-hidden"
+        >
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-400">Network Status</span>
             <span className="flex items-center gap-1 text-green-400">
@@ -86,7 +91,7 @@ export default function Sidebar() {
             </span>
           </div>
           <div className="mt-2 text-xs text-gray-500">Gas: 32 Gwei</div>
-        </div>
+        </motion.div>
       )}
 
       {/* Chains Section */}
@@ -125,12 +130,17 @@ export default function Sidebar() {
               />
 
               {!isCollapsed && (
-                <div className="flex flex-col">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                  className="flex flex-col"
+                >
                   <span className="text-sm font-medium">{chain.label}</span>
                   <span className="text-xs text-gray-500">
                     TVL: {chain.tvl}
                   </span>
-                </div>
+                </motion.div>
               )}
 
               {!isCollapsed && (

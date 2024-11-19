@@ -51,7 +51,7 @@ export const Header = ({
           <motion.div whileHover={{ scale: 1.01 }} className="relative">
             <input
               type="text"
-              className="w-full pl-12 pr-4 py-3 bg-[#171717] rounded-xl border border-gray-800 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all duration-300"
+              className="text-white w-full pl-12 pr-4 py-3 bg-[#171717] rounded-xl border border-gray-800 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all duration-300"
               placeholder="Search protocols, tokens, addresses..."
               onChange={(e) => setSearchTerm?.(e.target.value)}
               value={searchTerm}

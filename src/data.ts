@@ -81,3 +81,113 @@ export const protocolData = [
     slug: "etherfi",
   },
 ];
+
+export const portfolioTokens = [
+  {
+    name: "Ethereum",
+    symbol: "ETH",
+    icon: "ethereum.png",
+    balance: "$0",
+    change: "0%",
+  },
+  {
+    name: "BSC",
+    symbol: "BSC",
+    icon: "svgs/bsc.svg",
+    balance: "$0",
+    change: "0%",
+  },
+  {
+    name: "Base",
+    symbol: "BASE",
+    icon: "svgs/baseColor.svg",
+    balance: "$0",
+    change: "0%",
+  },
+  {
+    name: "Arbitrum",
+    symbol: "ARB",
+    icon: "svgs/arbitriumColor.svg",
+    balance: "$0",
+    change: "0%",
+  },
+  {
+    name: "Avalanche",
+    symbol: "AVAX",
+    icon: "svgs/avalanche.svg",
+    balance: "$0",
+    change: "0%",
+  },
+];
+
+// For Compound Finance
+export const AssetsSupplyData = [
+  {
+    id: 1,
+    label: "ChainLink",
+    img: "/svgs/chainLink.svg",
+    apy: "2.04%",
+    balance: 0,
+    token: "LINK",
+    walletBalance: "0",
+    change: "+5.2%",
+  },
+  {
+    id: 2,
+    label: "ChainLink",
+    img: "/svgs/chainLink.svg",
+    apy: "2.04%",
+    balance: 0,
+    token: "LINK",
+    walletBalance: "0",
+    change: "-2.1%",
+  },
+  {
+    id: 3,
+    label: "ChainLink",
+    img: "/svgs/chainLink.svg",
+    apy: "2.04%",
+    balance: 0,
+    token: "LINK",
+    walletBalance: "0",
+    change: "+1.8%",
+  },
+];
+
+export const AssetsBorrowData = [
+  {
+    id: 1,
+    icon: "/svgs/eth.svg",
+    label: "ETH",
+    balance: 0,
+    apy: "3.5%",
+  },
+  {
+    id: 2,
+    icon: "/svgs/eth.svg",
+    label: "ETH",
+    balance: 0,
+    apy: "3.2%",
+  },
+  {
+    id: 3,
+    icon: "/svgs/eth.svg",
+    label: "ETH",
+    balance: 0,
+    apy: "2.8%",
+  },
+  {
+    id: 4,
+    icon: "/svgs/eth.svg",
+    label: "ETH",
+    balance: 0,
+    apy: "4.1%",
+  },
+  {
+    id: 5,
+    icon: "/svgs/eth.svg",
+    label: "ETH",
+    balance: 0,
+    apy: "3.7%",
+  },
+];
