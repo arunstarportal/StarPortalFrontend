@@ -13,11 +13,12 @@ const chainConfigs = [
     symbol: "ETH",
     icon: "/ethereum.png",
   },
+  //   { chain: bsc, name: "BSC", symbol: "BNB", icon: "/svgs/bsc.svg" },
   { chain: base, name: "Base", symbol: "ETH", icon: "/svgs/baseColor.svg" },
   {
     chain: arbitrum,
     name: "Arbitrum",
-    symbol: "ARB",
+    symbol: "ETH",
     icon: "/svgs/arbitriumColor.svg",
   },
   {
@@ -29,7 +30,7 @@ const chainConfigs = [
   {
     chain: sepolia,
     name: "Sepolia",
-    symbol: "SepETH",
+    symbol: "ETH",
     icon: "/svgs/eth.svg",
   },
 ];
