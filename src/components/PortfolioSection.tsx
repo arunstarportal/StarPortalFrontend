@@ -90,6 +90,8 @@ const PortfolioSection = () => {
         })
       );
 
+      //   Addding usdt
+
       setBalances(updatedBalances);
       setTotalBalance(totalUsdBalance);
     };
