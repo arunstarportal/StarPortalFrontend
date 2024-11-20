@@ -1,14 +1,111 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { Header } from "@/components/Header";
-import { Settings, TrendingUp, TrendingDown, Info } from "lucide-react";
+import { Settings, TrendingUp, TrendingDown, Info, Plus } from "lucide-react";
 import { GiReceiveMoney } from "react-icons/gi";
 import { AssetsBorrowData, AssetsSupplyData } from "@/data";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { compound } from "@/ContractData.json";
+import { parseUnits } from "viem";
 
 const Page = () => {
+  const { address: myAddress } = useAccount() as any;
+  const { writeContract, isPending, isError, error } = useWriteContract();
+  const [isApproved, setIsApproved] = useState(false);
+
+  const [supplyAmount, setSupplyAmount] = useState(0);
+  const [borrowAmount, setBorrowAmount] = useState(0);
+
+  // Compound's Comet contract address on Sepolia
+  const COMET_ADDRESS = compound.sepoliaUSDC.address as any;
+
+  // USDC token address on Sepolia
+  const USDC_ADDRESS = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
+
+  // We need both USDC ABI (for approve) and Comet ABI (for supply)
+  const COMET_ABI = compound.sepoliaUSDC.abi;
+
+  // Basic ERC20 ABI for approval
+  const ERC20_ABI = [
+    {
+      inputs: [
+        { name: "spender", type: "address" },
+        { name: "amount", type: "uint256" },
+      ],
+      name: "approve",
+      outputs: [{ name: "", type: "bool" }],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+  ];
+
+  const handleSupply = (actionType: "supply" | "borrow", amount: number) => {
+    if (!myAddress) {
+      alert("Please connect your wallet");
+      return;
+    }
+
+    try {
+      switch (actionType) {
+        case "supply":
+          // Implement supply logic
+          setSupplyAmount((prevAmount) => prevAmount + amount);
+
+          const amountInWei = parseUnits(amount.toString(), 6);
+
+          console.log(`Supplied ${amountInWei} USDC`);
+
+          writeContract({
+            address: USDC_ADDRESS,
+            abi: ERC20_ABI,
+            functionName: "approve",
+            args: [COMET_ADDRESS, amountInWei],
+          });
+
+          writeContract({
+            address: COMET_ADDRESS,
+            abi: compound.sepoliaUSDC.abi,
+            functionName: "supply",
+            args: [USDC_ADDRESS, amountInWei],
+          });
+
+          break;
+        case "borrow":
+          // Implement borrow logic
+          setBorrowAmount((prevAmount) => prevAmount + amount);
+          console.log(`Borrowed ${amount} USDC`);
+          break;
+        default:
+          throw new Error("Invalid action type");
+      }
+      // Here you would typically also call a blockchain/backend function
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Optionally show error to user
+    }
+  };
+
+  if (error) {
+    console.log(error);
+  }
+
+  const handleSupplyAsset = () => {
+    const amountInWei = parseUnits("100", 6);
+    writeContract({
+      address: COMET_ADDRESS,
+      abi: compound.sepoliaUSDC.abi,
+      functionName: "supply",
+      args: [USDC_ADDRESS, amountInWei],
+    });
+  };
+
   return (
     <div className="max-h-screen overflow-y-scroll p-6 relative">
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-black to-white/10 -z-10 " />
       <Header />
+      <button className="text-white px-4 py-2" onClick={handleSupplyAsset}>
+        Supply funciotn
+      </button>
       <div className="max-w-7xl mx-auto my-10">
         <div className="flex items-center justify-between py-4 border-b border-gray-300/10">
           <div className="flex items-center gap-3">
@@ -20,7 +117,7 @@ const Page = () => {
           <Settings className="w-6 h-6 text-gray-400 hover:text-white transition-colors cursor-pointer" />
         </div>
 
-        <div className="flex items-center justify-between gap-6 text-white py-8">
+        <div className="flex items-center justify-between gap-6 text-white mt-4">
           <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-gray-800/50 hover:bg-gray-800/70 transition-all cursor-pointer backdrop-blur-lg">
             <img
               src="/svgs/compound.svg"
@@ -42,16 +139,20 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-8 my-8">
+        <div className="grid grid-cols-2 gap-8 my-8 ">
           <StatCard
             title="Assets Supplied"
             value="0.000"
             icon={<TrendingUp className="w-5 h-5 text-green-400" />}
+            type="supply"
+            handleSupply={handleSupply}
           />
           <StatCard
             title="Assets Borrowed"
             value="0.000"
             icon={<TrendingDown className="w-5 h-5 text-red-400" />}
+            type="borrow"
+            handleSupply={handleSupply}
           />
         </div>
 
@@ -97,17 +198,60 @@ const Page = () => {
   );
 };
 
-const StatCard = ({ title, value, icon }: any) => (
-  <div className="border-[0.5px] border-white/20 bg-gray-900/40 backdrop-blur-lg w-full px-6 py-5 rounded-xl hover:border-white/40 transition-all duration-300 group">
-    <div className="flex items-center justify-between mb-2">
-      <p className="text-sm text-white/70 font-medium">{title}</p>
-      {icon}
+const StatCard = ({
+  title,
+  value,
+  icon,
+  type,
+  handleSupply,
+}: {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  type: "supply" | "borrow";
+  handleSupply: (type: "supply" | "borrow", amount: number) => void;
+}) => {
+  const [inputAmount, setInputAmount] = useState("");
+
+  const handleButtonClick = () => {
+    const amount = parseFloat(inputAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+    handleSupply(type, amount);
+    setInputAmount("");
+  };
+
+  return (
+    <div className="border-[0.5px] border-white/20 bg-gray-900/40 backdrop-blur-lg w-full px-6 py-5 rounded-xl hover:border-white/40 transition-all duration-300 group">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm text-white/70 font-medium">{title}</p>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            value={inputAmount}
+            onChange={(e) => setInputAmount(e.target.value)}
+            placeholder="Amount"
+            className="w-28 px-3 py-2 rounded-md bg-black/50 text-white border border-white/20 outline-none"
+          />
+          <button
+            onClick={handleButtonClick}
+            className="border border-white/40 text-white px-3 font-medium py-2 rounded-lg bg-black flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300"
+          >
+            <span className="w-5 h-5 bg-gray-900 flex items-center justify-center rounded-full">
+              <Plus size={15} />
+            </span>
+            {type === "supply" ? "Supply" : "Borrow"} USDC
+          </button>
+        </div>
+      </div>
+      <p className="text-white text-3xl font-medium group-hover:scale-[1.01] transition-transform">
+        {value}
+      </p>
     </div>
-    <p className="text-white text-3xl font-medium group-hover:scale-105 transition-transform">
-      {value}
-    </p>
-  </div>
-);
+  );
+};
 
 const AssetRow = ({ img, label, token, walletBalance, change, apy }: any) => (
   <div className="grid grid-cols-2 py-3 px-4 hover:bg-white/5 transition-colors rounded-lg cursor-pointer">

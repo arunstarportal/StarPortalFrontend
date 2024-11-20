@@ -2,64 +2,14 @@
 import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { portfolioTokens, protocolData } from "@/data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TrendingUp, ArrowUpDown, Search, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-const PortfolioSection = () => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-[#171717] rounded-2xl px-6 py-4 my-8 shadow-xl border border-gray-500/50"
-    >
-      <div className="flex items-center justify-between mb-6 mx-4">
-        <div className="flex items-center gap-3">
-          <Wallet className="w-6 h-6 text-gray-400" />
-          <h2 className="text-2xl font-bold text-white">Total Balance</h2>
-        </div>
-        <div className="flex items-end gap-2">
-          <h3 className="text-4xl font-bold text-white">0.00</h3>
-          <span className="text-gray-400 mb-1">USD</span>
-        </div>
-      </div>
-
-      <div className="relative">
-        <div className="flex justify-around gap-4 scrollbar-hide">
-          {portfolioTokens.map((token, index) => (
-            <motion.div
-              key={token.symbol}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="flex-shrink-0 bg-[#222222] rounded-xl p-4 min-w-[200px] hover:bg-[#2a2a2a] transition-colors cursor-pointer group"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="relative w-10 h-10">
-                  <img
-                    src={token.icon}
-                    alt={token.name}
-                    className="w-full h-full rounded-full ring-2 ring-gray-500/20"
-                  />
-                </div>
-                <div>
-                  <h4 className="text-white font-medium">{token.name}</h4>
-                  <p className="text-gray-500 text-sm">{token.symbol}</p>
-                </div>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
-                  {token.balance}
-                </span>
-                <span className="text-gray-500 text-sm">{token.change}</span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
+import { mainnet, bsc, arbitrum, avalanche, base, sepolia } from "wagmi/chains";
+import { useAccount, usePublicClient } from "wagmi";
+import { formatEther } from "viem";
+import { handleSort } from "@/Config/home";
+import PortfolioSection from "@/components/PortfolioSection";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("All");
@@ -88,18 +38,9 @@ export default function Page() {
     }
   );
 
-  const handleSort = (field: any) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(field);
-      setSortOrder("asc");
-    }
-  };
-
   return (
     <div className="max-h-screen overflow-y-scroll relative bg-gradient-to-b from-[#000] via-[#28282878] to-[#000] text-gray-200 p-6">
-      <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <Header />
 
       <div className="max-w-7xl mx-auto">
         <PortfolioSection />
@@ -157,7 +98,15 @@ export default function Page() {
                       Category
                     </th>
                     <th
-                      onClick={() => handleSort("tvl")}
+                      onClick={() =>
+                        handleSort(
+                          sortBy,
+                          "tvl",
+                          setSortOrder,
+                          sortOrder,
+                          setSortBy
+                        )
+                      }
                       className="p-5 text-gray-400/80 text-lg font-medium cursor-pointer group"
                     >
                       <div className="flex items-center gap-2">
@@ -175,7 +124,15 @@ export default function Page() {
                       Fees 24h
                     </th>
                     <th
-                      onClick={() => handleSort("revenue")}
+                      onClick={() =>
+                        handleSort(
+                          sortBy,
+                          "revenue",
+                          setSortOrder,
+                          sortOrder,
+                          setSortBy
+                        )
+                      }
                       className="p-5 text-gray-400/80 text-lg font-medium cursor-pointer group"
                     >
                       <div className="flex items-center gap-2">
