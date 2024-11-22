@@ -5,16 +5,55 @@ import { useAccount, usePublicClient } from "wagmi";
 import { formatEther } from "viem";
 import { Wallet } from "lucide-react";
 import { mainnet, bsc, arbitrum, avalanche, base, sepolia } from "wagmi/chains";
+import { type Chain, type Address } from "viem";
+import { PublicClient } from "viem";
 
-const chainConfigs = [
+// Chain configuration types
+interface ChainConfig {
+  chain: Chain;
+  name: string;
+  symbol: TokenSymbol;
+  icon: string;
+}
+
+// Token types
+type TokenSymbol = "ETH" | "BNB" | "AVAX";
+
+// Balance types
+interface TokenBalance {
+  name: string;
+  symbol: TokenSymbol;
+  icon: string;
+  balance: string;
+  change: string;
+  usdValue?: string;
+}
+
+// Price estimate type
+type PriceEstimates = {
+  [K in TokenSymbol]: number;
+};
+
+// Motion variants type
+interface MotionVariants {
+  initial: object;
+  animate: object;
+  transition?: object;
+}
+
+const chainConfigs: ChainConfig[] = [
   {
     chain: mainnet,
     name: "Ethereum",
     symbol: "ETH",
     icon: "/ethereum.png",
   },
-  //   { chain: bsc, name: "BSC", symbol: "BNB", icon: "/svgs/bsc.svg" },
-  { chain: base, name: "Base", symbol: "ETH", icon: "/svgs/baseColor.svg" },
+  {
+    chain: base,
+    name: "Base",
+    symbol: "ETH",
+    icon: "/svgs/baseColor.svg",
+  },
   {
     chain: arbitrum,
     name: "Arbitrum",
@@ -35,9 +74,9 @@ const chainConfigs = [
   },
 ];
 
-const PortfolioSection = () => {
+const PortfolioSection: React.FC = () => {
   const { address, isConnected } = useAccount();
-  const [balances, setBalances] = useState(
+  const [balances, setBalances] = useState<TokenBalance[]>(
     chainConfigs.map((config) => ({
       name: config.name,
       symbol: config.symbol,
@@ -47,34 +86,39 @@ const PortfolioSection = () => {
     }))
   );
 
-  const [totalBalance, setTotalBalance] = useState(0);
-  const publicClients = chainConfigs.map((config) =>
+  const [totalBalance, setTotalBalance] = useState<number>(0);
+
+  // Create public clients for each chain
+  // @ts-ignore
+  const publicClients: PublicClient[] = chainConfigs.map((config) =>
+    // @ts-ignore
     usePublicClient({ chainId: config.chain.id })
   );
 
-  // Price estimates (you'd replace with real API)
-  const priceEstimates = {
+  // Price estimates
+  const priceEstimates: PriceEstimates = {
     ETH: 2000,
     BNB: 300,
     AVAX: 20,
   };
 
   useEffect(() => {
-    const fetchBalances = async () => {
+    const fetchBalances = async (): Promise<void> => {
       if (!isConnected || !address) return;
 
-      let totalUsdBalance = 0;
+      let totalUsdBalance: number = 0;
 
       const updatedBalances = await Promise.all(
         chainConfigs.map(async (config, index) => {
           try {
             const balanceWei = await publicClients[index].getBalance({
-              address,
+              address: address as Address,
             });
+
             const balanceNative = parseFloat(formatEther(balanceWei));
 
-            // Estimate USD value
-            const usdValue =
+            // Calculate USD value
+            const usdValue: number =
               balanceNative * (priceEstimates[config.symbol] || 0);
             totalUsdBalance += usdValue;
 
@@ -84,20 +128,19 @@ const PortfolioSection = () => {
               usdValue: usdValue.toFixed(2),
             };
           } catch (error) {
-            console.error(`Error fetching balance for ${config.name}:`, error);
             return balances[index];
           }
         })
       );
 
-      //   Addding usdt
-
       setBalances(updatedBalances);
       setTotalBalance(totalUsdBalance);
     };
 
-    if (isConnected) fetchBalances();
-  }, [address, isConnected]);
+    if (isConnected) {
+      fetchBalances();
+    }
+  }, [address, isConnected, publicClients]);
 
   return (
     <motion.div

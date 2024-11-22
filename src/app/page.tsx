@@ -1,21 +1,18 @@
 "use client";
 import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
-import { portfolioTokens, protocolData } from "@/data";
-import { useEffect, useState } from "react";
-import { TrendingUp, ArrowUpDown, Search, Wallet } from "lucide-react";
+import { protocolData } from "@/data";
+import { useState } from "react";
+import { TrendingUp, ArrowUpDown, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { mainnet, bsc, arbitrum, avalanche, base, sepolia } from "wagmi/chains";
-import { useAccount, usePublicClient } from "wagmi";
-import { formatEther } from "viem";
 import { handleSort } from "@/Config/home";
 import PortfolioSection from "@/components/PortfolioSection";
 
 export default function Page() {
-  const [activeTab, setActiveTab] = useState("All");
-  const [sortBy, setSortBy] = useState(null);
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<string>("All");
+  const [sortBy, setSortBy] = useState<"revenue" | "tvl" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const router = useRouter();
 
   // Filter and sort logic remains the same
@@ -104,6 +101,7 @@ export default function Page() {
                           "tvl",
                           setSortOrder,
                           sortOrder,
+                          // @ts-ignore
                           setSortBy
                         )
                       }
@@ -130,6 +128,7 @@ export default function Page() {
                           "revenue",
                           setSortOrder,
                           sortOrder,
+                          // @ts-ignore
                           setSortBy
                         )
                       }

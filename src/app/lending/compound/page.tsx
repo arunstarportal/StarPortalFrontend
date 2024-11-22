@@ -5,69 +5,99 @@ import { Settings, TrendingUp, TrendingDown, Info, Plus } from "lucide-react";
 import { GiReceiveMoney } from "react-icons/gi";
 import { AssetsBorrowData, AssetsSupplyData } from "@/data";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
-import { compound } from "@/ContractData.json";
+import { COMPOUND, AssetsAddress, ERC20_ABI } from "@/ContractData";
 import { parseUnits } from "viem";
 
-const Page = () => {
-  const { address: myAddress } = useAccount() as any;
+type ActionType = "supply" | "borrow";
+
+interface WriteContractConfig {
+  address: `0x${string}`;
+  abi: any;
+  functionName: string;
+  args: any[];
+}
+
+// Define type for Asset Data
+interface AssetData {
+  id: string;
+  icon: string; // Assuming URL or path to the icon
+  label: string;
+  balance: number;
+  apy: string;
+}
+
+// Define type for Props of AssetRow
+interface AssetRowProps {
+  img: string;
+  label: string;
+  token: string;
+  walletBalance: number;
+  change: string;
+  apy: string;
+}
+
+// Define type for Props of StatCard
+interface StatCardProps {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  type: "supply" | "borrow";
+  handleSupply: (actionType: "supply" | "borrow", amount: number) => void;
+}
+
+// Contract related types
+type ContractAddresses = {
+  COMPOUND_ADDRESS: `0x${string}`;
+  USDC_ADDRESS: `0x${string}`;
+};
+
+// Component state interfaces
+interface TransactionState {
+  supplyAmount: number;
+  borrowAmount: number;
+  isApproved: boolean;
+}
+
+const Page: React.FC = () => {
+  const COMPOUND_ADDRESS = COMPOUND.sepoliaUSDC
+    .address as `0x${string} | undefined`;
+  const USDC_ADDRESS = AssetsAddress.USDC_Sepolia as `0x${string} | undefined`;
+  const COMPOUND_ABI = COMPOUND.sepoliaUSDC.abi as any;
+  const ERC_ABI = ERC20_ABI as any;
+
+  const { address: myAddress } = useAccount() as { address: string };
   const { writeContract, isPending, isError, error } = useWriteContract();
-  const [isApproved, setIsApproved] = useState(false);
+  const [isApproved, setIsApproved] = useState<boolean>(false);
 
-  const [supplyAmount, setSupplyAmount] = useState(0);
-  const [borrowAmount, setBorrowAmount] = useState(0);
+  const [supplyAmount, setSupplyAmount] = useState<number>(0);
+  const [borrowAmount, setBorrowAmount] = useState<number>(0);
 
-  // Compound's Comet contract address on Sepolia
-  const COMET_ADDRESS = compound.sepoliaUSDC.address as any;
-
-  // USDC token address on Sepolia
-  const USDC_ADDRESS = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
-
-  // We need both USDC ABI (for approve) and Comet ABI (for supply)
-  const COMET_ABI = compound.sepoliaUSDC.abi;
-
-  // Basic ERC20 ABI for approval
-  const ERC20_ABI = [
-    {
-      inputs: [
-        { name: "spender", type: "address" },
-        { name: "amount", type: "uint256" },
-      ],
-      name: "approve",
-      outputs: [{ name: "", type: "bool" }],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-  ];
-
-  const handleSupply = (actionType: "supply" | "borrow", amount: number) => {
+  const handleSupply = (
+    actionType: ActionType,
+    amount: number
+  ): Promise<void> => {
     if (!myAddress) {
       alert("Please connect your wallet");
       return;
     }
 
     try {
+      const amountInWei = parseUnits(amount.toString(), 6);
       switch (actionType) {
         case "supply":
           // Implement supply logic
           setSupplyAmount((prevAmount) => prevAmount + amount);
 
-          const amountInWei = parseUnits(amount.toString(), 6);
-
           console.log(`Supplied ${amountInWei} USDC`);
 
-          writeContract({
+          const approveConfig: any = {
             address: USDC_ADDRESS,
             abi: ERC20_ABI,
             functionName: "approve",
-            args: [COMET_ADDRESS, amountInWei],
-          });
+            args: [COMPOUND_ADDRESS, amountInWei],
+          };
 
-          writeContract({
-            address: COMET_ADDRESS,
-            abi: compound.sepoliaUSDC.abi,
-            functionName: "supply",
-            args: [USDC_ADDRESS, amountInWei],
-          });
+          writeContract(approveConfig);
 
           break;
         case "borrow":
@@ -91,12 +121,14 @@ const Page = () => {
 
   const handleSupplyAsset = () => {
     const amountInWei = parseUnits("100", 6);
-    writeContract({
-      address: COMET_ADDRESS,
-      abi: compound.sepoliaUSDC.abi,
+
+    const supplyArgs: any = {
+      address: COMPOUND_ADDRESS,
+      abi: COMPOUND.sepoliaUSDC.abi,
       functionName: "supply",
       args: [USDC_ADDRESS, amountInWei],
-    });
+    };
+    writeContract(supplyArgs);
   };
 
   return (

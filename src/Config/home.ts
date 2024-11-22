@@ -1,4 +1,14 @@
-export const handleSort = (
+type SortOrder = "asc" | "desc";
+
+type HandleSortFunction = (
+  sortBy: "revenue" | "tvl" | null,
+  field: string,
+  setSortOrder: (order: SortOrder) => void,
+  sortOrder: SortOrder,
+  setSortBy: (field: string) => void
+) => void;
+
+export const handleSort: HandleSortFunction = (
   sortBy,
   field,
   setSortOrder,

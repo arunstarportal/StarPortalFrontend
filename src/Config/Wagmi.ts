@@ -20,6 +20,12 @@ import {
 } from "wagmi/chains";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 
+declare module "wagmi" {
+  interface Register {
+    config: typeof config;
+  }
+}
+
 const wcProjectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID;
 
 const connectors = connectorsForWallets(
