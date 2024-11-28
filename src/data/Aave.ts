@@ -1182,6 +1182,7 @@ export const AAVE = {
         type: "function",
       },
     ],
+
     etherDepAbi: {
       inputs: [
         {

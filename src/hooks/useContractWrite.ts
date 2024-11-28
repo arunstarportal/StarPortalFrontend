@@ -6,7 +6,7 @@ interface Props {
   abi?: any;
   functionName?: string;
   args?: any[];
-  value?: bigint | string;
+  value?: bigint | string | null;
 }
 
 interface UseWriteContractProps {
