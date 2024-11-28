@@ -46,7 +46,7 @@ const chainConfigs: ChainConfig[] = [
     chain: mainnet,
     name: "Ethereum",
     symbol: "ETH",
-    icon: "/ethereum.png",
+    icon: "/eth.png",
   },
   {
     chain: base,
@@ -146,7 +146,7 @@ const PortfolioSection: React.FC = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#171717] rounded-2xl px-6 py-4 my-8 w-[] shadow-xl border border-gray-500/50 overflow-hidden"
+      className="bg-[#171717] rounded-2xl px-6 py-4 my-4 w-[] shadow-xl border border-gray-500/50 overflow-hidden"
     >
       <div className="flex items-center justify-between mb-6 mx-4">
         <div className="flex items-center gap-3">

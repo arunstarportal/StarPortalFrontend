@@ -99,7 +99,7 @@ export const Header = () => {
   };
 
   return (
-    <div className="relative z-50">
+    <div className="relative z-50 pb-2">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

@@ -55,7 +55,7 @@ export default function Sidebar() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-5 -right-3 text-white border border-gray-600 flex items-center justify-center rounded-full w-7 h-7 bg-gray-800/60 hover:bg-gray-700 transition-colors"
+        className="absolute top-5 -right-3 text-white border border-gray-900 flex items-center justify-center rounded-full w-7 h-7 bg-gray-800/60 hover:bg-gray-700 transition-colors"
       >
         {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </motion.button>

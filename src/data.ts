@@ -46,7 +46,7 @@ export const protocolData = [
   },
   {
     name: "Rocket Pool",
-    category: "Liquid Staking",
+    category: "Liquid-Staking",
     tvl: "$3.436b",
     fees: "-",
     revenue: "-",

@@ -17,6 +17,7 @@ import {
   arbitrum,
   base,
   arbitrumSepolia,
+  holesky,
 } from "wagmi/chains";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 
@@ -56,6 +57,7 @@ export const config = createConfig({
     polygon,
     optimism,
     base,
+    holesky,
   ],
   connectors: connectors,
   transports: {
@@ -66,6 +68,7 @@ export const config = createConfig({
     [polygon.id]: http(),
     [optimism.id]: http(),
     [base.id]: http(),
+    [holesky.id]: http(),
   },
   ssr: true,
 });

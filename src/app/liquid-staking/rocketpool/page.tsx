@@ -1,12 +1,91 @@
+"use client";
 import { Header } from "@/components/Header";
 import { Settings } from "lucide-react";
-import React from "react";
+import React, { useMemo } from "react";
 import { RiCopperCoinFill } from "react-icons/ri";
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
+import { ROCKETPOOL } from "@/ContractData";
+import { formatEther, parseEther } from "viem";
+import { useContractRead } from "@/hooks/useContractRead";
+import { useContractWrite } from "@/hooks/useContractWrite";
 
 const page = () => {
+  const ROCKET_ADDRESS = ROCKETPOOL.holesky.address as `0x${string}`;
+  const ROCKET_POOL_ABI = ROCKETPOOL.holesky.abi;
+
+  const { writeContract, data: hash, error } = useWriteContract();
+  const { executeWrite } = useContractWrite();
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
+  const { address: myAddress } = useAccount();
+
+  const {
+    data: accountBalance,
+    isLoading: readLoad,
+    error: readingError,
+  } = useContractRead({
+    address: ROCKET_ADDRESS,
+    abi: ROCKET_POOL_ABI,
+    functionName: "getUserBalance",
+    args: [],
+  });
+
+  // Memoized balance formatting
+  const formattedBalance = useMemo(() => {
+    if (!accountBalance) return "0";
+
+    try {
+      // Convert to a more readable format
+      const balance = formatEther(accountBalance);
+
+      // Round to 4 decimal places
+      return parseFloat(balance).toFixed(4);
+    } catch (err) {
+      console.error("Balance formatting error:", err);
+      return "Error";
+    }
+  }, [accountBalance]);
+
+  const handleSupplyAsset = async () => {
+    try {
+      // const ethAmount = "0.01";
+      // const value = parseEther(ethAmount);
+
+      await executeWrite({
+        address: ROCKET_ADDRESS,
+        abi: ROCKET_POOL_ABI,
+        functionName: "deposit",
+        args: [],
+        value: parseEther("0.01"),
+      });
+    } catch (error) {
+      console.error("Deposit error:", error);
+    }
+  };
+
+  if (error || readingError) {
+    console.log(readingError);
+  }
   return (
     <div className="min-h-screen p-6 bg-gradient-to-b from-black to-white/5">
       <Header />
+
+      <div className="flex items-center justify-center gap-5 my-5">
+        <h3 className="text-xl font-medium text-white">
+          User Balance:{" "}
+          {isLoading ? "Loading..." : accountBalance && formattedBalance}
+        </h3>
+        <button
+          className="text-white border px-3 py-1"
+          onClick={handleSupplyAsset}
+        >
+          Deposite
+        </button>
+      </div>
+
       <div className="my-10 mx-10">
         <div className="flex items-center justify-between py-4 border-b border-gray-300/20">
           <div className="flex items-center gap-2">
