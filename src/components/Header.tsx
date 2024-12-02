@@ -16,6 +16,11 @@ import {
 } from "lucide-react";
 import { protocolData } from "@/data";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { BASE_URL } from "@/Config";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserProfileData } from "@/app/redux/userProfileSlice";
+import { useToast } from "@/hooks/use-toast";
 
 interface header {
   searchTerm?: string;
@@ -26,12 +31,18 @@ export const Header = () => {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  // @ts-ignore
+  const profileData = useSelector((state) => state.userProfile.user);
 
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [showCopied, setShowCopied] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProtocols, setFilteredProtocols] = useState<any>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
+
+  const openLoginModal = () => setIsLoginOpen(true);
+  const closeLoginModal = () => setIsLoginOpen(false);
 
   useEffect(() => {
     const searchResults = protocolData.filter((protocol) =>
@@ -40,7 +51,6 @@ export const Header = () => {
     setFilteredProtocols(searchResults.slice(0, 5)); // Limit to 5 results
   }, [searchTerm]);
 
-  // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -99,7 +109,7 @@ export const Header = () => {
   };
 
   return (
-    <div className="relative z-50 pb-2">
+    <div className="z-50 pb-2">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -211,25 +221,33 @@ export const Header = () => {
             //   )}
             // </ConnectButton.Custom>
 
-            <div className="flex items-center gap-2">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
-              >
-                <Wallet size={20} />
-                <span>Login</span>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => router.push("/signup")}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
-              >
-                <Wallet size={20} />
-                <span>Signup</span>
-              </motion.button>
-            </div>
+            profileData ? (
+              <button className="" onClick={() => router.push("/profile")}>
+                <img src="/svgs/user.svg" alt="" className="w-8 h-8" />
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                {" "}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={openLoginModal}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
+                >
+                  <Wallet size={20} />
+                  <span>Login</span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push("/signup")}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
+                >
+                  <Wallet size={20} />
+                  <span>Signup</span>
+                </motion.button>
+              </div>
+            )
           ) : (
             <div className="relative">
               <motion.button
@@ -306,6 +324,169 @@ export const Header = () => {
           )}
         </div>
       </motion.div>
+      <Login
+        isOpen={isLoginOpen}
+        onClose={closeLoginModal}
+        setIsLoginOpen={setIsLoginOpen}
+      />
+    </div>
+  );
+};
+
+const Login = ({
+  isOpen,
+  onClose,
+  setIsLoginOpen,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  setIsLoginOpen: (isOpen: boolean) => void;
+}) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const [is2FaEnable, setIs2FaEnable] = useState(false);
+  const [faDetails, setFaDetails] = useState(null);
+  const [faCode, setFaCode] = useState("");
+
+  if (!isOpen) return null;
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(`${BASE_URL}/user/login`, {
+        emailAddress: email,
+        password: password,
+      });
+      const data = response.data;
+      if (response.status === 200) {
+        console.log(data);
+        if (data.is2faEnbaled === false) {
+          localStorage.setItem("star_authToken", data.token);
+          await dispatch(setUserProfileData(data));
+          setIsLoginOpen(false);
+        } else {
+          setFaDetails(data);
+          setIs2FaEnable(true);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+    }
+  };
+
+  const handle2FA = async () => {
+    if (!faCode) return;
+    try {
+      const response = await axios.post(`${BASE_URL}/user/verifyOtp`, {
+        token: faDetails.tempToken,
+        otp: faCode,
+      });
+      const data = response.data;
+      console.log(data);
+      if (response.status === 200) {
+        localStorage.setItem("star_authToken", data.token);
+        await dispatch(setUserProfileData(data));
+        setIsLoginOpen(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 w-full h-full bg-black/70 z-50 flex items-center justify-center">
+      {/* Modal Container */}
+      <div className="bg-[#171717] w-[90%] max-w-md rounded-lg p-8 shadow-lg relative">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-white"
+        >
+          ×
+        </button>
+
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-4">
+            <img
+              src="/svgs/user.svg" // Replace with a user icon path
+              alt="User Icon"
+              className="w-8 h-8 text-gray-400"
+            />
+          </div>
+          <h2 className="text-2xl font-semibold text-white">
+            Good to See You Again!
+          </h2>
+          <p className="text-gray-400 text-sm">
+            First time here?{" "}
+            <a href="/signup" className="text-blue-500 hover:underline">
+              Sign up here
+            </a>
+          </p>
+        </div>
+
+        {/* Input Fields */}
+        {is2FaEnable === true ? (
+          <div className="space-y-4">
+            <input
+              type="email"
+              placeholder="Enter Code"
+              value={faCode}
+              onChange={(e) => setFaCode(e.target.value)}
+              className="w-full px-4 py-3 bg-[#1f1f1f] text-white rounded-lg border border-gray-700 focus:ring-2 focus:ring-purple-500 outline-none"
+            />
+            <button
+              onClick={handle2FA}
+              className="w-full py-3 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-all"
+            >
+              Authorize
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <input
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 bg-[#1f1f1f] text-white rounded-lg border border-gray-700 focus:ring-2 focus:ring-purple-500 outline-none"
+            />
+            <input
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 bg-[#1f1f1f] text-white rounded-lg border border-gray-700 focus:ring-2 focus:ring-purple-500 outline-none"
+            />
+            <button
+              onClick={handleLogin}
+              className="w-full py-3 bg-white text-black rounded-lg font-semibold hover:bg-gray-200 transition-all"
+            >
+              Log in
+            </button>
+          </div>
+        )}
+
+        {/* Divider */}
+        <div className="flex items-center my-6">
+          <div className="flex-grow h-px bg-gray-700"></div>
+          <span className="px-4 text-gray-400 text-sm">or sign up with</span>
+          <div className="flex-grow h-px bg-gray-700"></div>
+        </div>
+
+        {/* Social Login Buttons */}
+        <div className="grid grid-cols-2 gap-4">
+          <button className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1f1f1f] border border-gray-700 rounded-lg text-white hover:bg-gray-800 transition-all">
+            <img src="/svgs/google.svg" alt="Google" className="w-5 h-5" />
+            Google
+          </button>
+          <button className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1f1f1f] border border-gray-700 rounded-lg text-white hover:bg-gray-800 transition-all">
+            <img src="/svgs/metamask.svg" alt="Metamask" className="w-5 h-5" />
+            Metamask
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

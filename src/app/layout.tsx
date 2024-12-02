@@ -14,6 +14,9 @@ import Sidebar from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { usePathname } from "next/navigation";
 
+import { store } from "./redux/store";
+import { Provider } from "react-redux";
+
 globalThis.Buffer = Buffer;
 const queryClient = new QueryClient();
 
@@ -37,24 +40,28 @@ export default function RootLayout({
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider theme={darkTheme()}>
-              <div
-                className={`antialiased flex h-screen ${isSignupRoute ? "" : "overflow-hidden"}`}
-              >
-                {!isSignupRoute && <Sidebar />}
-                <main className={`flex-1 ${isSignupRoute ? "" : "p-6"}`}>
-                  {!isSignupRoute && <Header />}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className={
-                      isSignupRoute ? "" : "mt-1 max-h-[90vh] overflow-y-scroll"
-                    }
-                  >
-                    {children}
-                  </motion.div>
-                </main>
-              </div>
+              <Provider store={store}>
+                <div
+                  className={`antialiased flex h-screen ${isSignupRoute ? "" : "overflow-hidden"}`}
+                >
+                  {!isSignupRoute && <Sidebar />}
+                  <main className={`flex-1 ${isSignupRoute ? "" : "p-6"}`}>
+                    {!isSignupRoute && <Header />}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className={
+                        isSignupRoute
+                          ? ""
+                          : "mt-1 max-h-[90vh] overflow-y-scroll"
+                      }
+                    >
+                      {children}
+                    </motion.div>
+                  </main>
+                </div>
+              </Provider>
             </RainbowKitProvider>
           </QueryClientProvider>
         </WagmiProvider>
