@@ -197,19 +197,39 @@ export const Header = () => {
 
           {/* Wallet Section */}
           {!isConnected ? (
-            <ConnectButton.Custom>
-              {({ openConnectModal }) => (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={openConnectModal}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
-                >
-                  <Wallet size={20} />
-                  <span>Connect Wallet</span>
-                </motion.button>
-              )}
-            </ConnectButton.Custom>
+            // <ConnectButton.Custom>
+            //   {({ openConnectModal }) => (
+            //     <motion.button
+            //       whileHover={{ scale: 1.02 }}
+            //       whileTap={{ scale: 0.98 }}
+            //       onClick={openConnectModal}
+            //       className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
+            //     >
+            //       <Wallet size={20} />
+            //       <span>Connect Wallet</span>
+            //     </motion.button>
+            //   )}
+            // </ConnectButton.Custom>
+
+            <div className="flex items-center gap-2">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
+              >
+                <Wallet size={20} />
+                <span>Login</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => router.push("/signup")}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
+              >
+                <Wallet size={20} />
+                <span>Signup</span>
+              </motion.button>
+            </div>
           ) : (
             <div className="relative">
               <motion.button

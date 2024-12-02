@@ -1,6 +1,6 @@
 "use client";
 import "./globals.css";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 import { Buffer } from "buffer";
 
@@ -12,6 +12,7 @@ import { darkTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { config } from "@/Config/Wagmi";
 import Sidebar from "@/components/Sidebar";
 import { Header } from "@/components/Header";
+import { usePathname } from "next/navigation";
 
 globalThis.Buffer = Buffer;
 const queryClient = new QueryClient();
@@ -21,6 +22,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isSignupRoute = pathname === "/signup";
+
   return (
     <html lang="en">
       <head>
@@ -33,15 +37,19 @@ export default function RootLayout({
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider theme={darkTheme()}>
-              <div className="antialiased flex h-screen overflow-hidden">
-                <Sidebar />
-                <main className="flex-1 p-6">
-                  <Header />
+              <div
+                className={`antialiased flex h-screen ${isSignupRoute ? "" : "overflow-hidden"}`}
+              >
+                {!isSignupRoute && <Sidebar />}
+                <main className={`flex-1 ${isSignupRoute ? "" : "p-6"}`}>
+                  {!isSignupRoute && <Header />}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="mt-1 max-h-[90vh] overflow-y-scroll"
+                    className={
+                      isSignupRoute ? "" : "mt-1 max-h-[90vh] overflow-y-scroll"
+                    }
                   >
                     {children}
                   </motion.div>

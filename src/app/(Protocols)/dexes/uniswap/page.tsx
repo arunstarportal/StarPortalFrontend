@@ -7,6 +7,20 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
+const Widget = dynamic(
+  () => {
+    return import("@uniswap/widgets").then((mod) => mod.SwapWidget);
+  },
+  { ssr: false }
+);
+import "@uniswap/widgets/fonts.css";
+import { providers, ethers } from "ethers";
+import dynamic from "next/dynamic";
+
+const infuraId = "20381ad547034bab9d596630a5f60df5";
+const jsonRpcEndpoint = `https://sepolia.infura.io/v3/20381ad547034bab9d596630a5f60df5`;
+const jsonRpcProvider = new providers.JsonRpcProvider(jsonRpcEndpoint);
+const provider = new ethers.providers.Web3Provider(jsonRpcProvider);
 
 const page = () => {
   const [isPriceLoading, setIsPriceLoading] = useState(false);
@@ -90,186 +104,12 @@ const SwapComponent = ({ isPriceLoading, setIsPriceLoading, darkMode }) => {
   return (
     <div className="flex flex-col gap-6">
       {/* Swap Card */}
-      <div
-        className={`backdrop-blur-xl border ${darkMode ? "bg-black/60 border-gray-800/50" : "bg-white/60 border-gray-200/50"} rounded-3xl p-6 space-y-6 shadow-2xl relative group`}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-800/10 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
 
-        {/* Sell Token Section */}
-        <div
-          className={`rounded-2xl ${darkMode ? "bg-white/5 hover:bg-white/10" : "bg-gray-100 hover:bg-gray-200"} p-4 transition-all duration-300`}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <h2
-              className={`${darkMode ? "text-white/80" : "text-gray-700"} font-medium`}
-            >
-              Sell
-            </h2>
-            <p
-              className={`${darkMode ? "text-gray-400" : "text-gray-500"} text-sm`}
-            >
-              Balance: {sellToken.balance.toFixed(4)} {sellToken.symbol}
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between gap-4">
-            <button
-              onClick={() => {
-                /* Open Token Selection Modal */
-              }}
-              className="flex items-center gap-2 border border-gray-300/60 hover:border-gray-300 transition-all duration-300 px-4 py-2 rounded-full group relative"
-            >
-              <img
-                src={sellToken.icon}
-                alt={sellToken.name}
-                className="w-6 h-6 group-hover:scale-110 transition-transform"
-              />
-              <span
-                className={`${darkMode ? "text-white" : "text-gray-800"} font-medium`}
-              >
-                {sellToken.symbol}
-              </span>
-              <span className="material-symbols-outlined text-white/80 group-hover:text-white transition-colors">
-                keyboard_arrow_down
-              </span>
-            </button>
-            <input
-              type="text"
-              value={sellAmount}
-              onChange={(e) => setSellAmount(e.target.value)}
-              placeholder="0.0"
-              className={`bg-transparent text-right ${darkMode ? "text-white" : "text-gray-900"} text-3xl w-1/2 focus:outline-none placeholder-gray-500`}
-            />
-          </div>
-          <p
-            className={`text-right ${darkMode ? "text-gray-400" : "text-gray-500"} mt-1`}
-          >
-            ≈ $
-            {sellAmount
-              ? (parseFloat(sellAmount) * sellToken.price).toFixed(2)
-              : "0.00"}
-          </p>
-        </div>
-
-        {/* Swap Button */}
-        <div className="relative">
-          <button
-            onClick={swapTokens}
-            onMouseEnter={() => setIsSwapHovered(true)}
-            onMouseLeave={() => setIsSwapHovered(false)}
-            className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-gray-700 p-3 rounded-xl border border-gray-700 transition-all duration-300 hover:scale-110"
-          >
-            <ArrowDownUp
-              className={`w-6 h-6 text-white transition-transform duration-300 ${isSwapHovered ? "rotate-180" : ""}`}
-            />
-          </button>
-        </div>
-
-        {/* Buy Token Section */}
-        <div
-          className={`rounded-2xl ${darkMode ? "bg-[#242424] hover:bg-white/10" : "bg-gray-200 hover:bg-gray-300"} p-4 transition-all duration-300`}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <h2
-              className={`${darkMode ? "text-white/80" : "text-gray-700"} font-medium`}
-            >
-              Buy
-            </h2>
-            <p
-              className={`${darkMode ? "text-gray-400" : "text-gray-500"} text-sm`}
-            >
-              Balance: {buyToken.balance.toFixed(4)} {buyToken.symbol}
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between gap-4">
-            <button
-              onClick={() => {
-                /* Open Token Selection Modal */
-              }}
-              className={`flex items-center gap-2 ${darkMode ? "bg-[#2a2a2a] border-gray-700/60" : "bg-gray-300 border-gray-400/60"} hover:border-gray-600 transition-all duration-300 px-4 py-2 rounded-full group`}
-            >
-              <img
-                src={buyToken.icon || "/token-placeholder.png"}
-                alt={buyToken.name}
-                className="w-6 h-6 group-hover:scale-110 transition-transform"
-              />
-              <span
-                className={`${darkMode ? "text-white" : "text-gray-800"} font-medium`}
-              >
-                {buyToken.symbol || "Select Token"}
-              </span>
-              <span className="material-symbols-outlined text-white/80 group-hover:text-white transition-colors">
-                keyboard_arrow_down
-              </span>
-            </button>
-            <div className="relative w-1/2">
-              <input
-                type="text"
-                value={buyAmount}
-                readOnly
-                placeholder="0.0"
-                className={`bg-transparent text-right ${darkMode ? "text-white" : "text-gray-900"} text-3xl w-full focus:outline-none placeholder-gray-500`}
-              />
-              {isPriceLoading && (
-                <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 animate-spin" />
-              )}
-            </div>
-          </div>
-          <p
-            className={`text-right ${darkMode ? "text-gray-400" : "text-gray-500"} mt-1`}
-          >
-            ≈ $
-            {buyAmount
-              ? (parseFloat(buyAmount) * buyToken.price).toFixed(2)
-              : "0.00"}
-          </p>
-        </div>
-
-        {/* Additional Swap Details */}
-        {sellAmount && (
-          <div className="space-y-2 px-2">
-            <div className="flex items-center justify-between text-sm">
-              <span
-                className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}
-              >
-                Price Impact
-              </span>
-              <span
-                className={`${Number(priceImpact) < 1 ? "text-green-400" : "text-yellow-500"}`}
-              >
-                ~{priceImpact}%
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span
-                className={`${darkMode ? "text-gray-400" : "text-gray-600"} flex items-center gap-2`}
-              >
-                <TrendingUp className="w-4 h-4" /> Estimated Price
-              </span>
-              <span className={`${darkMode ? "text-white" : "text-gray-800"}`}>
-                1 {sellToken.symbol} ={" "}
-                {(buyToken.price / sellToken.price).toFixed(4)}{" "}
-                {buyToken.symbol}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Swap Button */}
-        <button
-          className={`w-full py-4 px-6 ${
-            darkMode
-              ? "bg-gradient-to-r from-[#505050] to-[#2B2B2B]"
-              : "bg-gradient-to-r from-blue-500 to-purple-600"
-          } rounded-xl text-white font-medium transition-all transform hover:scale-[1.02] focus:scale-[0.98] relative group overflow-hidden`}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-600/0 via-gray-600/20 to-gray-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer" />
-          <span className="relative flex items-center justify-center gap-2">
-            <Wallet className="w-5 h-5" />
-            Connect Wallet
-          </span>
-        </button>
+      <div className="Uniswap">
+        <Widget
+          provider={provider}
+          tokenList={"https://ipfs.io/ipns/tokens.uniswap.org"}
+        />
       </div>
 
       {/* Price Alert and Additional Information */}
@@ -292,4 +132,152 @@ const SwapComponent = ({ isPriceLoading, setIsPriceLoading, darkMode }) => {
   );
 };
 
+/*
+const CustomSwap = () => {
+  return (
+    <div
+      className={`backdrop-blur-xl border bg-black/60 border-gray-800/50 rounded-3xl p-6 space-y-6 shadow-2xl relative group`}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-800/10 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
+      <div
+        className={`rounded-2xl bg-white/5 hover:bg-white/10 p-4 transition-all duration-300`}
+      >
+        <div className="flex justify-between items-center mb-2">
+          <h2 className={`text-white/80 font-medium`}>Sell</h2>
+          <p className={`text-gray-400 text-sm`}>
+            Balance: {sellToken.balance.toFixed(4)} {sellToken.symbol}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <button
+            onClick={() => {
+             
+            }}
+            className="flex items-center gap-2 border border-gray-300/60 hover:border-gray-300 transition-all duration-300 px-4 py-2 rounded-full group relative"
+          >
+            <img
+              src={sellToken.icon}
+              alt={sellToken.name}
+              className="w-6 h-6 group-hover:scale-110 transition-transform"
+            />
+            <span className={`text-white font-medium`}>{sellToken.symbol}</span>
+            <span className="material-symbols-outlined text-white/80 group-hover:text-white transition-colors">
+              keyboard_arrow_down
+            </span>
+          </button>
+          <input
+            type="text"
+            value={sellAmount}
+            onChange={(e) => setSellAmount(e.target.value)}
+            placeholder="0.0"
+            className={`bg-transparent text-right text-white text-3xl w-1/2 focus:outline-none placeholder-gray-500`}
+          />
+        </div>
+        <p className={`text-right text-gray-400 mt-1`}>
+          ≈ $
+          {sellAmount
+            ? (parseFloat(sellAmount) * sellToken.price).toFixed(2)
+            : "0.00"}
+        </p>
+      </div>
+
+      <div className="relative">
+        <button
+          onClick={swapTokens}
+          onMouseEnter={() => setIsSwapHovered(true)}
+          onMouseLeave={() => setIsSwapHovered(false)}
+          className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-gray-800 hover:bg-gray-700 p-3 rounded-xl border border-gray-700 transition-all duration-300 hover:scale-110"
+        >
+          <ArrowDownUp
+            className={`w-6 h-6 text-white transition-transform duration-300 ${isSwapHovered ? "rotate-180" : ""}`}
+          />
+        </button>
+      </div>
+
+      <div
+        className={`rounded-2xl bg-[#242424] hover:bg-white/10 p-4 transition-all duration-300`}
+      >
+        <div className="flex justify-between items-center mb-2">
+          <h2 className={`text-white/80 font-medium`}>Buy</h2>
+          <p className={`text-gray-400 text-sm`}>
+            Balance: {buyToken.balance.toFixed(4)} {buyToken.symbol}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <button
+            onClick={() => {
+              
+            }}
+            className={`flex items-center gap-2 bg-[#2a2a2a] border-gray-700/60 hover:border-gray-600 transition-all duration-300 px-4 py-2 rounded-full group`}
+          >
+            <img
+              src={buyToken.icon || "/token-placeholder.png"}
+              alt={buyToken.name}
+              className="w-6 h-6 group-hover:scale-110 transition-transform"
+            />
+            <span className={`text-white font-medium`}>
+              {buyToken.symbol || "Select Token"}
+            </span>
+            <span className="material-symbols-outlined text-white/80 group-hover:text-white transition-colors">
+              keyboard_arrow_down
+            </span>
+          </button>
+          <div className="relative w-1/2">
+            <input
+              type="text"
+              value={buyAmount}
+              readOnly
+              placeholder="0.0"
+              className={`bg-transparent text-right text-white text-3xl w-full focus:outline-none placeholder-gray-500`}
+            />
+            {isPriceLoading && (
+              <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 animate-spin" />
+            )}
+          </div>
+        </div>
+        <p className={`text-right text-gray-400 mt-1`}>
+          ≈ $
+          {buyAmount
+            ? (parseFloat(buyAmount) * buyToken.price).toFixed(2)
+            : "0.00"}
+        </p>
+      </div>
+
+      {sellAmount && (
+        <div className="space-y-2 px-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className={`text-gray-400`}>Price Impact</span>
+            <span
+              className={`${Number(priceImpact) < 1 ? "text-green-400" : "text-yellow-500"}`}
+            >
+              ~{priceImpact}%
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className={`text-gray-400 flex items-center gap-2`}>
+              <TrendingUp className="w-4 h-4" /> Estimated Price
+            </span>
+            <span className={`text-white`}>
+              1 {sellToken.symbol} ={" "}
+              {(buyToken.price / sellToken.price).toFixed(4)} {buyToken.symbol}
+            </span>
+          </div>
+        </div>
+      )}
+
+      <button
+        className={`w-full py-4 px-6 bg-gradient-to-r from-[#505050] to-[#2B2B2B] rounded-xl text-white font-medium transition-all transform hover:scale-[1.02] focus:scale-[0.98] relative group overflow-hidden`}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-600/0 via-gray-600/20 to-gray-600/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer" />
+        <span className="relative flex items-center justify-center gap-2">
+          <Wallet className="w-5 h-5" />
+          Connect Wallet
+        </span>
+      </button>
+    </div>
+  );
+};
+*/
 export default page;

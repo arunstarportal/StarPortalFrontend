@@ -216,7 +216,7 @@ const AssetsCard = ({
       address,
       abi,
       functionName: "supply",
-      args: [item.address, parseUnits("100", item.decimals), myAddress, 0],
+      args: [item.address, parseUnits("10", item.decimals), myAddress, 0],
     });
   };
 
