@@ -14,7 +14,7 @@ import Sidebar from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { usePathname } from "next/navigation";
 
-import { store } from "./redux/store";
+import { store } from "../redux/store";
 import { Provider } from "react-redux";
 
 globalThis.Buffer = Buffer;

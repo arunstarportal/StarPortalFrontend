@@ -10,9 +10,9 @@ import {
   Activity,
   ChevronDown,
 } from "lucide-react";
-import { AssetsBorrowData, AssetsSupplyData } from "@/data";
+import { AssetsBorrowData, AssetsSupplyData } from "@/data/data";
 import { useAccount, useWriteContract } from "wagmi";
-import { AAVE, AssetsAddress, ERC20_ABI } from "@/ContractData";
+import { AAVE, AssetsAddress, ERC20_ABI } from "@/data/AllContractData";
 import { formatUnits, parseUnits } from "viem";
 import { StatCard } from "@/components/dexes/compound";
 import { useContractRead } from "@/hooks/useContractRead";
@@ -26,6 +26,22 @@ import { useContractWrite } from "@/hooks/useContractWrite";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
+
+// for supplying ethrer the contract address used is - 0x387d311e47e80b498169e6fb51d3193167d89F7D with function named depositETH
+/* parameters
+0	undefined	address	0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951
+1	onBehalfOf	address	0x7B5C40aB02D16e2Ca43D466ADF5e3002b436c857
+2	referralCode	uint16	0
+
+ for borrow -- function name borrow
+ #	Name	Type	Data
+0	asset	address	0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0
+1	amount	uint256	1000000
+2	interestRateMode	uint256	2
+3	referralCode	uint16	0
+4	onBehalfOf	address	0x7B5C40aB02D16e2Ca43D466ADF5e3002b436c857
+
+  */
 
 const address = AAVE.sepolia.address as `0x${string}`;
 const abi = AAVE.sepolia.abi as any;

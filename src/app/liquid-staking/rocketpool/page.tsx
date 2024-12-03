@@ -8,7 +8,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { ROCKETPOOL } from "@/ContractData";
+import { ROCKETPOOL } from "@/data/AllContractData";
 import { formatEther, parseEther } from "viem";
 import { useContractRead } from "@/hooks/useContractRead";
 import { useContractWrite } from "@/hooks/useContractWrite";

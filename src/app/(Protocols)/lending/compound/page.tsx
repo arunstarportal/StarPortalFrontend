@@ -17,9 +17,9 @@ import {
   MinusCircle,
 } from "lucide-react";
 import { GiReceiveMoney } from "react-icons/gi";
-import { AssetsSupplyData } from "@/data";
+import { AssetsSupplyData } from "@/data/data";
 import { useAccount, useWriteContract } from "wagmi";
-import { AssetsAddress, COMPOUND, ERC20_ABI } from "@/ContractData";
+import { AssetsAddress, COMPOUND, ERC20_ABI } from "@/data/AllContractData";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StatCard } from "@/components/dexes/compound";
 import { useContractRead } from "@/hooks/useContractRead";
@@ -28,6 +28,10 @@ import { useContractWrite } from "@/hooks/useContractWrite";
 
 const address = COMPOUND.sepoliaUSDC.address as `0x${string}`;
 const abi = COMPOUND.sepoliaUSDC.abi as any;
+
+// supply function can be used to supply collateral, supply the base asset, or repay an open borrow
+//when supplying the collateral asset --> supply
+//for WETH get usdc from aave faucet then swap it from uniswap
 
 const CompoundBaseAssetData = [
   {

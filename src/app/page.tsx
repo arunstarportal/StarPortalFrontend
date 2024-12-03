@@ -1,7 +1,7 @@
 "use client";
 import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
-import { protocolData } from "@/data";
+import { protocolData } from "@/data/data";
 import { useState } from "react";
 import { TrendingUp, ArrowUpDown, Search } from "lucide-react";
 import { useRouter } from "next/navigation";

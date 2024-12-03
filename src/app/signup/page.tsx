@@ -1,18 +1,23 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { BASE_URL } from "@/Config";
 import axios from "axios";
 import { redirect, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setUserProfileData } from "../redux/userProfileSlice";
+import { setUserProfileData } from "../../redux/userProfileSlice";
+import { useAccount, useConnect } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Wallet } from "lucide-react";
 
 const SignupPage = () => {
+  const { address, isConnected } = useAccount();
   const [email, setEmail] = useState("");
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [password, setPassword] = useState("");
   const router = useRouter();
   const dispatch = useDispatch();
+  const { connectors, connect } = useConnect();
 
   const handleContinue = () => {
     if (email) {
@@ -21,18 +26,32 @@ const SignupPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!email && !password) {
+    if (!address || (!email && !password)) {
       console.log("Please set the valid details");
     }
+
     try {
-      const response = await axios.post(`${BASE_URL}/user/signup`, {
-        emailAddress: email,
-        password: password,
-      });
+      const payload = address
+        ? { metamask: address }
+        : {
+            emailAddress: email,
+            password: password,
+          };
+
+      console.log(payload);
+
+      const response = await axios.post(`${BASE_URL}/user/signup`, payload);
 
       if (response.status === 201) {
         const data = response.data;
-        localStorage.setItem("star_authToken", data.token);
+        console.log(data);
+        const userData = {
+          token: data.token,
+          eth_Address: data.ethereumWalletAddress,
+          sol_Address: data.solanaWalletAddress,
+          is2faEnbaled: false,
+        };
+        localStorage.setItem("star_authTokens", JSON.stringify(userData));
         await dispatch(setUserProfileData(data));
         router.push("/");
       } else {
@@ -131,10 +150,19 @@ const SignupPage = () => {
                 <img src="/svgs/google.svg" alt="" className="mr-1" />
                 Google
               </button>
-              <button className="flex font-medium items-center justify-center p-3 rounded-lg bg-[#2c2c2c] border border-white/10 text-white hover:bg-[#3c3c3c] transition duration-300">
-                <img src="/svgs/metamask.svg" alt="" className="mr-1" />
-                Metamask
-              </button>
+              <ConnectButton.Custom>
+                {({ openConnectModal }) => (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={openConnectModal}
+                    className="flex font-medium items-center justify-center p-3 rounded-lg bg-[#2c2c2c] border border-white/10 text-white hover:bg-[#3c3c3c] transition duration-300"
+                  >
+                    <img src="/svgs/metamask.svg" alt="" className="mr-1" />
+                    <span>Metamask</span>
+                  </motion.button>
+                )}
+              </ConnectButton.Custom>
             </div>
 
             <div className="text-center mt-4">
