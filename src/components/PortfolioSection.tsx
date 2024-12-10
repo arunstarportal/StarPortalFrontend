@@ -1,152 +1,102 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useAccount, usePublicClient } from "wagmi";
-import { formatEther } from "viem";
+import { useAccount } from "wagmi";
+import axios from "axios";
 import { Wallet } from "lucide-react";
-import { mainnet, bsc, arbitrum, avalanche, base, sepolia } from "wagmi/chains";
-import { type Chain, type Address } from "viem";
-import { PublicClient } from "viem";
+import { BASE_URL } from "@/Config";
 
 // Chain configuration types
 interface ChainConfig {
-  chain: Chain;
   name: string;
-  symbol: TokenSymbol;
+  symbol: string;
   icon: string;
 }
 
 // Token types
-type TokenSymbol = "ETH" | "BNB" | "AVAX";
-
-// Balance types
 interface TokenBalance {
   name: string;
-  symbol: TokenSymbol;
+  symbol: string;
   icon: string;
   balance: string;
-  change: string;
-  usdValue?: string;
+  usdValue: number;
+  usdPrice: number;
 }
 
-// Price estimate type
-type PriceEstimates = {
-  [K in TokenSymbol]: number;
-};
-
-// Motion variants type
-interface MotionVariants {
-  initial: object;
-  animate: object;
-  transition?: object;
-}
-
+// Chain configurations
 const chainConfigs: ChainConfig[] = [
   {
-    chain: mainnet,
     name: "Ethereum",
     symbol: "ETH",
     icon: "/eth.png",
   },
   {
-    chain: base,
     name: "Base",
     symbol: "ETH",
     icon: "/svgs/baseColor.svg",
   },
   {
-    chain: arbitrum,
     name: "Arbitrum",
     symbol: "ETH",
     icon: "/svgs/arbitriumColor.svg",
   },
   {
-    chain: avalanche,
     name: "Avalanche",
     symbol: "AVAX",
     icon: "/svgs/avalanche.svg",
   },
-  {
-    chain: sepolia,
-    name: "Sepolia",
-    symbol: "ETH",
-    icon: "/svgs/eth.svg",
-  },
 ];
 
 const PortfolioSection: React.FC = () => {
-  const { address, isConnected } = useAccount();
-  const [balances, setBalances] = useState<TokenBalance[]>(
-    chainConfigs.map((config) => ({
-      name: config.name,
-      symbol: config.symbol,
-      icon: config.icon,
-      balance: "0",
-      change: "0%",
-    }))
-  );
-
+  const { isConnected } = useAccount();
+  const [balances, setBalances] = useState<TokenBalance[]>([]);
   const [totalBalance, setTotalBalance] = useState<number>(0);
 
-  // Create public clients for each chain
-  // @ts-ignore
-  const publicClients: PublicClient[] = chainConfigs.map((config) =>
-    // @ts-ignore
-    usePublicClient({ chainId: config.chain.id })
-  );
-
-  // Price estimates
-  const priceEstimates: PriceEstimates = {
-    ETH: 2000,
-    BNB: 300,
-    AVAX: 20,
-  };
-
   useEffect(() => {
-    const fetchBalances = async (): Promise<void> => {
-      if (!isConnected || !address) return;
+    const fetchUserWallet = async () => {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/user/getUserTokenBalance?address=${"0x7b5c40ab02d16e2ca43d466adf5e3002b436c857"}`
+        );
 
-      let totalUsdBalance: number = 0;
+        const data = response.data;
 
-      const updatedBalances = await Promise.all(
-        chainConfigs.map(async (config, index) => {
-          try {
-            const balanceWei = await publicClients[index].getBalance({
-              address: address as Address,
+        // Parse data
+        const tokens: TokenBalance[] = [];
+        let total = 0;
+
+        Object.entries(data).forEach(([chain, details]: any) => {
+          if (chain !== "grand_total_balance") {
+            details.tokens.forEach((token: any) => {
+              tokens.push({
+                name: token.name,
+                symbol: token.symbol,
+                icon: token.logo,
+                balance: token.balance,
+                usdValue: token.usd_value,
+                usdPrice: token.usd_price,
+              });
             });
-
-            const balanceNative = parseFloat(formatEther(balanceWei));
-
-            // Calculate USD value
-            const usdValue: number =
-              balanceNative * (priceEstimates[config.symbol] || 0);
-            totalUsdBalance += usdValue;
-
-            return {
-              ...balances[index],
-              balance: balanceNative.toFixed(4),
-              usdValue: usdValue.toFixed(2),
-            };
-          } catch (error) {
-            return balances[index];
+          } else {
+            total = details as number;
           }
-        })
-      );
+        });
 
-      setBalances(updatedBalances);
-      setTotalBalance(totalUsdBalance);
+        setBalances(tokens);
+        setTotalBalance(total);
+      } catch (error) {
+        console.error("Error fetching wallet data:", error);
+      }
     };
 
-    if (isConnected) {
-      fetchBalances();
-    }
-  }, [address, isConnected, publicClients]);
+    fetchUserWallet();
+  }, []);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#171717] rounded-2xl px-6 py-4 my-4 w-[] shadow-xl border border-gray-500/50 overflow-hidden"
+      className="bg-[#171717] w-[79vw] rounded-2xl px-6 py-4 my-4 shadow-xl border border-gray-500/50 overflow-hidden"
     >
       <div className="flex items-center justify-between mb-6 mx-4">
         <div className="flex items-center gap-3">
@@ -162,14 +112,14 @@ const PortfolioSection: React.FC = () => {
       </div>
 
       <div className="relative">
-        <div className="flex justify-around gap-4 scrollbar-hide overflow-x-scroll">
+        <div className="flex justify-around gap-4 overflow-x-scroll scrollbar-hide">
           {balances.map((token, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="flex-shrink-0 bg-[#222222] rounded-xl p-4 min-w-[200px] hover:bg-[#2a2a2a] transition-colors cursor-pointer group"
+              className="flex-shrink-0 bg-[#222222] rounded-xl p-4 w-[18rem] hover:bg-[#2a2a2a] transition-colors cursor-pointer group"
             >
               <div className="flex items-center gap-3 mb-3">
                 <div className="relative w-10 h-10">
@@ -186,7 +136,7 @@ const PortfolioSection: React.FC = () => {
               </div>
               <div className="flex items-baseline justify-between">
                 <span className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors">
-                  {token.balance} {token.symbol}
+                  {parseFloat(token.balance).toFixed(4)} {token.symbol}
                 </span>
                 <span className="text-gray-500 text-sm">Balance</span>
               </div>

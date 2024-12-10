@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 
 import { store } from "../redux/store";
 import { Provider } from "react-redux";
+import NextAuthProvider from "@/components/SessionProvider";
 
 globalThis.Buffer = Buffer;
 const queryClient = new QueryClient();
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isSignupRoute = pathname === "/signup";
+  const isSignupRoute = pathname === "/auth/signup";
 
   return (
     <html lang="en">
@@ -40,28 +41,30 @@ export default function RootLayout({
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider theme={darkTheme()}>
-              <Provider store={store}>
-                <div
-                  className={`antialiased flex h-screen ${isSignupRoute ? "" : "overflow-hidden"}`}
-                >
-                  {!isSignupRoute && <Sidebar />}
-                  <main className={`flex-1 ${isSignupRoute ? "" : "p-6"}`}>
-                    {!isSignupRoute && <Header />}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.2 }}
-                      className={
-                        isSignupRoute
-                          ? ""
-                          : "mt-1 max-h-[90vh] overflow-y-scroll"
-                      }
-                    >
-                      {children}
-                    </motion.div>
-                  </main>
-                </div>
-              </Provider>
+              <NextAuthProvider>
+                <Provider store={store}>
+                  <div
+                    className={`antialiased flex h-screen ${isSignupRoute ? "" : "overflow-hidden"}`}
+                  >
+                    {!isSignupRoute && <Sidebar />}
+                    <main className={`flex-1 ${isSignupRoute ? "" : "p-6"}`}>
+                      {!isSignupRoute && <Header />}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className={
+                          isSignupRoute
+                            ? ""
+                            : "mt-1 max-h-[90vh] overflow-y-scroll"
+                        }
+                      >
+                        {children}
+                      </motion.div>
+                    </main>
+                  </div>
+                </Provider>
+              </NextAuthProvider>
             </RainbowKitProvider>
           </QueryClientProvider>
         </WagmiProvider>

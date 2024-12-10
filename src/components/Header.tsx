@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUserProfileData } from "@/redux/userProfileSlice";
 import { useToast } from "@/hooks/use-toast";
 import { Login } from "./Login";
+import { signOut } from "next-auth/react";
 
 interface header {
   searchTerm?: string;
@@ -32,6 +33,7 @@ export const Header = () => {
   const router = useRouter();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+
   // @ts-ignore
   const profileData = useSelector((state) => state.userProfile.user);
 
@@ -43,14 +45,14 @@ export const Header = () => {
   const closeLoginModal = () => setIsLoginOpen(false);
   const { disconnect: walletDisconnect } = useDisconnect();
 
-  const address = localStorage.getItem("star_authToken");
+  const address = window.localStorage.getItem("star_authToken");
 
   const truncateAddress = (addr: string) => {
     return `${addr?.slice(0, 6)}...${addr?.slice(-4)}`;
   };
 
   useEffect(() => {
-    const userDetails = localStorage.getItem("star_authTokens");
+    const userDetails = window.localStorage.getItem("star_authTokens");
     if (userDetails?.length > 0) {
       // check the timestamp
       console.log(userDetails);
@@ -69,7 +71,7 @@ export const Header = () => {
 
   const disconnect = () => {
     walletDisconnect();
-    localStorage.removeItem("star_authTokens");
+    window.localStorage.removeItem("star_authTokens");
   };
 
   return (
@@ -174,11 +176,21 @@ export const Header = () => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => router.push("/signup")}
+                  onClick={() => router.push("/auth/signup")}
                   className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
                 >
                   <Wallet size={20} />
                   <span>Signup</span>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => signOut()}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20"
+                >
+                  <Wallet size={20} />
+                  <span>Signout</span>
                 </motion.button>
               </div>
             )}

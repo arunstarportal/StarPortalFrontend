@@ -5,10 +5,11 @@ import { BASE_URL } from "@/Config";
 import axios from "axios";
 import { redirect, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setUserProfileData } from "../../redux/userProfileSlice";
+import { setUserProfileData } from "../../../redux/userProfileSlice";
 import { useAccount, useConnect } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Wallet } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 const SignupPage = () => {
   const { address, isConnected } = useAccount();
@@ -59,6 +60,18 @@ const SignupPage = () => {
       }
     } catch (error) {
       console.error("Error during signup:", error);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signIn("google", {
+        //redirects me to home page
+        redirect: true,
+        callbackUrl: "/",
+      });
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
     }
   };
 
@@ -146,7 +159,10 @@ const SignupPage = () => {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <button className="flex font-medium items-center justify-center p-3 rounded-lg bg-[#2c2c2c] border border-white/10 text-white hover:bg-[#3c3c3c] transition duration-300">
+              <button
+                onClick={handleGoogleSignIn}
+                className="flex font-medium items-center justify-center p-3 rounded-lg bg-[#2c2c2c] border border-white/10 text-white hover:bg-[#3c3c3c] transition duration-300"
+              >
                 <img src="/svgs/google.svg" alt="" className="mr-1" />
                 Google
               </button>

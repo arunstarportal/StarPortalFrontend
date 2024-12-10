@@ -2,11 +2,14 @@
 import { Header } from "@/components/Header";
 import { motion, AnimatePresence } from "framer-motion";
 import { protocolData } from "@/data/data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TrendingUp, ArrowUpDown, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { handleSort } from "@/Config/home";
 import PortfolioSection from "@/components/PortfolioSection";
+import { useSession } from "next-auth/react";
+import axios from "axios";
+import { BASE_URL } from "@/Config";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<string>("All");
@@ -14,6 +17,33 @@ export default function Page() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const router = useRouter();
+
+  const { data: sessionToken, status: connectionStatus } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect("/auth/signup");
+    },
+  });
+
+  console.log(sessionToken, connectionStatus);
+
+  useEffect(() => {
+    const verifyFromBackend = async () => {
+      const payload = {
+        idToken: sessionToken.accessToken,
+      };
+      const response = await axios.post(
+        `${BASE_URL}/user/verify_oAuth`,
+        payload
+      );
+      const data = response.data;
+      console.log("response form bak", data);
+    };
+
+    if (connectionStatus === "authenticated") {
+      verifyFromBackend();
+    }
+  }, [sessionToken]);
 
   // Filter and sort logic remains the same
   const filteredData = protocolData
