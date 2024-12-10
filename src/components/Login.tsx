@@ -31,7 +31,7 @@ export const Login = ({
       const data = response.data;
       if (response.status === 200) {
         console.log(data);
-        if (data.is2faEnbaled === false) {
+        if (data.is2faEnabled === false) {
           const userData = {
             token: data.token,
             eth_Address: data.ethereumWalletAddress,

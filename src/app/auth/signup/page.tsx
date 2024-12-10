@@ -32,12 +32,17 @@ const SignupPage = () => {
     }
 
     try {
-      const payload = address
-        ? { metamask: address }
-        : {
-            emailAddress: email,
-            password: password,
-          };
+      // const payload = address
+      //   ? { metamask: address }
+      //   : {
+      //       emailAddress: email,
+      //       password: password,
+      //     };
+
+      const payload = {
+        emailAddress: email,
+        password: password,
+      };
 
       console.log(payload);
 
