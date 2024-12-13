@@ -20,7 +20,6 @@ import { GiReceiveMoney } from "react-icons/gi";
 import { AssetsSupplyData } from "@/data/data";
 import { useAccount, useWriteContract } from "wagmi";
 import { AssetsAddress, COMPOUND, ERC20_ABI } from "@/data/AllContractData";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StatCard } from "@/components/dexes/compound";
 import { useContractRead } from "@/hooks/useContractRead";
 import { formatUnits, parseUnits } from "viem";
@@ -340,14 +339,6 @@ const Page = () => {
           </div>
         ))}
       </div>
-
-      {/* Risk Alert */}
-      <Alert className="bg-yellow-500/10 border border-yellow-500/30 mb-8 flex">
-        <AlertDescription className="text-yellow-500 ml-2">
-          Always maintain a healthy collateral ratio to avoid liquidation.
-          Current market conditions may affect asset prices.
-        </AlertDescription>
-      </Alert>
     </main>
   );
 };

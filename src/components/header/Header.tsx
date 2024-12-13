@@ -194,9 +194,7 @@ export const Header = () => {
   );
 };
 
-import { QRCode } from "qrcode.react";
-
-export const DepositeModal = ({ isOpen, onClose }) => {
+export const DepositeModal = ({ isOpen, onClose, setIsLoginOpen }) => {
   const [activeTab, setActiveTab] = useState("transfer");
   const [selectedNetwork, setSelectedNetwork] = useState("Solana");
   const [showCopied, setShowCopied] = useState(false);
@@ -289,12 +287,12 @@ export const DepositeModal = ({ isOpen, onClose }) => {
 
                 {/* QR Code and Address */}
                 <div className="flex items-center justify-between gap-4">
-                  <QRCode
+                  {/* <QRCode
                     value={depositAddress}
                     size={100}
                     bgColor="#171717"
                     fgColor="#ffffff"
-                  />
+                  /> */}
                   <div className="flex-1">
                     <p className="text-gray-400 text-sm mb-1">
                       Deposit Address

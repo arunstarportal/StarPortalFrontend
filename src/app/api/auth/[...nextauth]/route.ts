@@ -23,6 +23,7 @@ const handler = NextAuth({
       // Custom sign-in logic
       if (account?.provider === "google") {
         // Additional verification can be done here
+        // @ts-ignore
         return profile?.email_verified === true;
       }
 
@@ -37,7 +38,7 @@ const handler = NextAuth({
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       console.log("This sesssion part ran");
       // Add Google access token and user ID to session
       session.accessToken = token.accessToken as string;
