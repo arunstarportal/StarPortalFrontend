@@ -1,4 +1,4 @@
-import { Header } from "@/components/Header";
+import { Header } from "@/components/header/Header";
 import { Settings } from "lucide-react";
 import React from "react";
 import { RiCopperCoinFill } from "react-icons/ri";

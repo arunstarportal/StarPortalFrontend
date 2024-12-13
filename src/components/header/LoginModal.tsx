@@ -3,6 +3,9 @@ import { BASE_URL } from "@/Config";
 import axios from "axios";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { X } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { useToast } from "@/hooks/use-toast";
 
 export const Login = ({
   isOpen,
@@ -19,6 +22,7 @@ export const Login = ({
   const [is2FaEnable, setIs2FaEnable] = useState(false);
   const [faDetails, setFaDetails] = useState(null);
   const [faCode, setFaCode] = useState("");
+  const { toast } = useToast();
 
   if (!isOpen) return null;
 
@@ -71,34 +75,48 @@ export const Login = ({
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      await signIn("google");
+    } catch (error) {
+      console.log("Google Sign-In Error:", error);
+      toast({
+        title: "Google Sign-In Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div className="absolute inset-0 w-screen h-screen bg-black/70 z-50 flex items-center justify-center">
+    <div className="absolute inset-0 w-screen h-screen bg-black/80 z-50 flex items-center justify-center">
       {/* Modal Container */}
-      <div className="bg-[#171717] w-[90%] max-w-md rounded-lg p-8 shadow-lg relative">
+      <div className="bg-[#171717] border border-gray-500/50 shadow-white/30 w-[90%] max-w-md rounded-lg p-8 shadow-md relative">
         {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white"
         >
-          ×
+          <X />
         </button>
 
+        <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 w-16 h-16 mx-auto bg-black/70 rounded-full flex items-center justify-center mb-4">
+          <img
+            src="/svgs/user.svg" // Replace with a user icon path
+            alt="User Icon"
+            className="w-8 h-8 text-gray-400"
+          />
+        </div>
+
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-4">
-            <img
-              src="/svgs/user.svg" // Replace with a user icon path
-              alt="User Icon"
-              className="w-8 h-8 text-gray-400"
-            />
-          </div>
+        <div className="text-center mt-4 mb-8 space-y-2">
           <h2 className="text-2xl font-semibold text-white">
             Good to See You Again!
           </h2>
           <p className="text-gray-400 text-sm">
             First time here?{" "}
-            <a href="/signup" className="text-blue-500 hover:underline">
-              Sign up here
+            <a href="/auth/signup" className="text-blue-500 hover:underline">
+              Sign up
             </a>
           </p>
         </div>
@@ -154,7 +172,10 @@ export const Login = ({
 
         {/* Social Login Buttons */}
         <div className="grid grid-cols-2 gap-4">
-          <button className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1f1f1f] border border-gray-700 rounded-lg text-white hover:bg-gray-800 transition-all">
+          <button
+            onClick={handleGoogleSignIn}
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1f1f1f] border border-gray-700 rounded-lg text-white hover:bg-gray-800 transition-all"
+          >
             <img src="/svgs/google.svg" alt="Google" className="w-5 h-5" />
             Google
           </button>

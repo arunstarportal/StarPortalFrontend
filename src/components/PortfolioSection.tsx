@@ -48,7 +48,7 @@ const chainConfigs: ChainConfig[] = [
 ];
 
 const PortfolioSection: React.FC = () => {
-  const { isConnected } = useAccount();
+  const { address: walletAddress, isConnected } = useAccount();
   const [balances, setBalances] = useState<TokenBalance[]>([]);
   const [totalBalance, setTotalBalance] = useState<number>(0);
 
@@ -56,7 +56,7 @@ const PortfolioSection: React.FC = () => {
     const fetchUserWallet = async () => {
       try {
         const response = await axios.get(
-          `${BASE_URL}/user/getUserTokenBalance?address=${"0x7b5c40ab02d16e2ca43d466adf5e3002b436c857"}`
+          `${BASE_URL}/user/getUserTokenBalance?address=${walletAddress}`
         );
 
         const data = response.data;
@@ -89,7 +89,9 @@ const PortfolioSection: React.FC = () => {
       }
     };
 
-    fetchUserWallet();
+    if (isConnected) {
+      fetchUserWallet();
+    }
   }, []);
 
   return (

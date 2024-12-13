@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ArrowDownUp, Info, Settings } from "lucide-react";
-import { Header } from "@/components/Header";
+import { Header } from "@/components/header/Header";
 
 const Page = () => {
   return (

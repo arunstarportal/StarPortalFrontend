@@ -11,12 +11,13 @@ import { WagmiProvider } from "wagmi";
 import { darkTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { config } from "@/Config/Wagmi";
 import Sidebar from "@/components/Sidebar";
-import { Header } from "@/components/Header";
+import { Header } from "@/components/header/Header";
 import { usePathname } from "next/navigation";
 
 import { store } from "../redux/store";
 import { Provider } from "react-redux";
 import NextAuthProvider from "@/components/SessionProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 globalThis.Buffer = Buffer;
 const queryClient = new QueryClient();
@@ -62,6 +63,7 @@ export default function RootLayout({
                         {children}
                       </motion.div>
                     </main>
+                    <Toaster />
                   </div>
                 </Provider>
               </NextAuthProvider>

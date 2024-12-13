@@ -1,5 +1,5 @@
 "use client";
-import { Header } from "@/components/Header";
+import { Header } from "@/components/header/Header";
 import { Settings, ChevronDown, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 

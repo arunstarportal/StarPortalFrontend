@@ -18,14 +18,18 @@ const handler = NextAuth({
 
   callbacks: {
     async signIn({ account, profile }) {
+      console.log("This signIn part ran");
+
       // Custom sign-in logic
       if (account?.provider === "google") {
         // Additional verification can be done here
         return profile?.email_verified === true;
       }
+
       return false;
     },
     async jwt({ token, account, profile }) {
+      console.log("This jwt part ran");
       // Add Google access token to the JWT
       if (account) {
         token.accessToken = account.access_token;
@@ -34,6 +38,7 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
+      console.log("This sesssion part ran");
       // Add Google access token and user ID to session
       session.accessToken = token.accessToken as string;
       session.userId = token.id as string;

@@ -6,89 +6,118 @@ import axios from "axios";
 import { redirect, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setUserProfileData } from "../../../redux/userProfileSlice";
-import { useAccount, useConnect } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Wallet } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useToast } from "@/hooks/use-toast";
+import { AppWindowMac, Lock, Mail } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { verifyFromBackend } from "@/Config/verifyToken";
+import useVerifyFromBackend from "@/hooks/useVerifyToken";
 
 const SignupPage = () => {
-  const { address, isConnected } = useAccount();
   const [email, setEmail] = useState("");
-  const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const { data: sessionToken, status: connectionStatus } = useSession();
+
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const router = useRouter();
   const dispatch = useDispatch();
-  const { connectors, connect } = useConnect();
+  const { toast } = useToast();
 
-  const handleContinue = () => {
-    if (email) {
-      setShowPasswordInput(true);
-    }
-  };
+  useVerifyFromBackend(sessionToken);
 
   const handleSubmit = async () => {
-    if (!address || (!email && !password)) {
-      console.log("Please set the valid details");
+    if (!email && !password) {
+      toast({
+        title: "Incomplete Information",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
     }
 
     try {
-      // const payload = address
-      //   ? { metamask: address }
-      //   : {
-      //       emailAddress: email,
-      //       password: password,
-      //     };
-
       const payload = {
         emailAddress: email,
         password: password,
+        refCode: referralCode || undefined,
       };
-
-      console.log(payload);
 
       const response = await axios.post(`${BASE_URL}/user/signup`, payload);
 
       if (response.status === 201) {
         const data = response.data;
-        console.log(data);
+
         const userData = {
           token: data.token,
           eth_Address: data.ethereumWalletAddress,
           sol_Address: data.solanaWalletAddress,
+          name: "Star User",
+          profileIcon: null,
           is2faEnbaled: false,
         };
+
         localStorage.setItem("star_authTokens", JSON.stringify(userData));
+
         await dispatch(setUserProfileData(data));
+
         router.push("/");
-      } else {
-        console.log("ERROR");
+        toast({
+          title: "Successfull",
+          description: "Account created successfully",
+          variant: "default",
+        });
       }
     } catch (error) {
-      console.error("Error during signup:", error);
+      console.log("Error during signup:", error);
+      toast({
+        title: "Error Signing Up",
+        description: error.response?.data?.message || error.message,
+        variant: "destructive",
+      });
     }
   };
 
   const handleGoogleSignIn = async () => {
     try {
-      const result = await signIn("google", {
-        //redirects me to home page
-        redirect: true,
-        callbackUrl: "/",
-      });
+      await signIn("google");
     } catch (error) {
-      console.error("Google Sign-In Error:", error);
+      console.log("Google Sign-In Error:", error);
+      toast({
+        title: "Google Sign-In Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
+  // useEffect(() => {
+  //   if (connectionStatus === "authenticated") {
+  //     verifyFromBackend(sessionToken, dispatch, router, signOut);
+  //   }
+  // }, [sessionToken]);
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#000000] to-[#222222]">
+    <div className="flex h-screen overflow-hidden items-center justify-center min-h-screen bg-gradient-to-br from-[#000000] to-[#222222]">
       {/* Left Side - Immersive Visual */}
-      <div className="h-screen w-1/2 border-[#292929] border-r relative">
-        <div className="w-full h-full overflow-hidden ">
+      <div className="h-screen w-1/2 relative">
+        {/* Logo  */}
+        <div
+          onClick={() => router.push("/")}
+          className="absolute top-5 left-7 w-44 h-auto cursor-pointer z-50"
+        >
+          <img
+            src="/logoFull.png"
+            alt=""
+            className="w-full h-full object-contain"
+          />
+        </div>
+
+        <div className="w-full h-full overflow-hidden border-[#292929] border-r rotate-6 scale-110 relative bottom-5 right-5">
           <img
             src="/v2.jpeg"
             alt=""
-            className="w-full h-full scale-150 relative right-40 opacity-10"
+            className="w-full h-full scale-150 relative right-44 opacity-10"
           />
         </div>
         <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white font-medium text-[4.9rem] w-[60%] text-center tracking-wide leading-snug">
@@ -113,55 +142,113 @@ const SignupPage = () => {
             </p>
           </div>
 
-          <div className="space-y-4">
-            {!showPasswordInput && (
-              <>
+          <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-4 my-4"
+            >
+              {/* Email Input with Enhanced Style */}
+              <div className="relative group">
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full p-3 rounded-lg bg-[#2c2c2c] border border-transparent text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-4 pl-10 rounded-lg 
+                    bg-[#2c2c2c] 
+                    border border-transparent 
+                    text-white 
+                    placeholder-white/50 
+                    focus:outline-none 
+                    focus:ring-2 focus:ring-blue-500 
+                    transition duration-300 
+                    group-hover:border-white/20
+                    peer"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                <button
-                  onClick={handleContinue}
-                  className="w-full p-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold transition duration-300"
-                >
-                  Continue
-                </button>
-              </>
-            )}
+                <Mail
+                  className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 
+                    text-white/50 
+                    peer-focus:text-blue-500 
+                    transition duration-300"
+                />
+              </div>
 
-            {showPasswordInput && (
-              <motion.div
-                initial={{ x: "100%", opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="space-y-4"
-              >
+              {/* Password Input with Enhanced Style */}
+              <div className="relative group">
                 <input
                   type="password"
                   placeholder="Create a password"
-                  className="w-full p-3 rounded-lg bg-[#2c2c2c] border border-transparent text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-4 pl-10 rounded-lg 
+                    bg-[#2c2c2c] 
+                    border border-transparent 
+                    text-white 
+                    placeholder-white/50 
+                    focus:outline-none 
+                    focus:ring-2 focus:ring-blue-500 
+                    transition duration-300 
+                    group-hover:border-white/20
+                    peer"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <button
-                  onClick={handleSubmit}
-                  className="w-full p-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold transition duration-300"
-                >
-                  Create Account
-                </button>
-              </motion.div>
-            )}
-
-            {!showPasswordInput && (
-              <div className="flex items-center my-4">
-                <div className="flex-grow h-px bg-white/20"></div>
-                <span className="px-4 text-white/60">Or signup with</span>
-                <div className="flex-grow h-px bg-white/20"></div>
+                <Lock
+                  className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 
+                    text-white/50 
+                    peer-focus:text-blue-500 
+                    transition duration-300"
+                />
               </div>
-            )}
+
+              {/* Referral Code Input with Enhanced Style */}
+              <div className="relative group flex items-center justify-between">
+                <p className="text-white w-1/2">Referral Code - </p>
+                <input
+                  type="text"
+                  placeholder="Referral Code (Optional)"
+                  className="w-full px-4 py-2 pl-11 rounded-lg 
+                    bg-[#2c2c2c] 
+                    border border-transparent 
+                    text-white 
+                    placeholder-white/50 
+                    focus:outline-none 
+                    focus:ring-2 focus:ring-blue-500 
+                    transition duration-300 
+                    group-hover:border-white/20
+                    peer"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                />
+                <AppWindowMac
+                  className="w-5 h-5 absolute left-[34%] top-1/2 -translate-y-1/2 
+                    text-white/50 
+                    peer-focus:text-blue-500 
+                    transition duration-300"
+                />
+              </div>
+            </motion.div>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleSubmit}
+              className="w-full p-3 rounded-lg 
+                bg-gradient-to-r from-blue-600 to-purple-600 
+                hover:from-blue-700 hover:to-purple-700 
+                text-white font-semibold 
+                transition duration-300 
+                transform hover:scale-[1.01] 
+                active:scale-[0.99]"
+            >
+              Create Account
+            </motion.button>
+
+            <div className="flex items-center my-4">
+              <div className="flex-grow h-px bg-white/20"></div>
+              <span className="px-4 text-white/60">Or signup with</span>
+              <div className="flex-grow h-px bg-white/20"></div>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <button
@@ -189,9 +276,12 @@ const SignupPage = () => {
             <div className="text-center mt-4">
               <p className="text-white/60">
                 Already have an account?{" "}
-                <a href="#" className="text-blue-500 hover:underline">
+                <button
+                  onClick={() => router.push("/")}
+                  className="text-blue-500 hover:underline"
+                >
                   Log in
-                </a>
+                </button>
               </p>
             </div>
           </div>
