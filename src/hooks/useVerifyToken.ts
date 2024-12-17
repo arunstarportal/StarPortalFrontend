@@ -16,9 +16,17 @@ const useVerifyFromBackend = (sessionToken) => {
       console.log("Token verification ran!");
 
       try {
-        const payload = {
-          idToken: sessionToken.accessToken,
-        };
+        // const payload = {
+        //   idToken: sessionToken.accessToken,
+        // };
+        const payload = sessionToken.user.message
+        ? { message: sessionToken.user.message , signature: sessionToken.user.signature, nonce: sessionToken.user.nonce, address: sessionToken.user.address }
+        : { idToken: sessionToken.accessToken };
+
+
+        console.log("🚀 ~ verifyFromBackend ~ payload:", payload)
+
+        
         const response = await axios.post(
           `${BASE_URL}/user/verify_oAuth`,
           payload
