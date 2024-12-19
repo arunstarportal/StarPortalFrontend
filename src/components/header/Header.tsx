@@ -13,6 +13,7 @@ import { LeftHeader } from "./leftHeader";
 import { signOut } from "next-auth/react";
 import useDisconnectUser from "@/hooks/useDisconnectUser";
 import { copyAddress, truncateAddress } from "@/Config/general";
+import {useSession } from 'next-auth/react'
 
 interface header {
   searchTerm?: string;
@@ -27,6 +28,7 @@ export const Header = () => {
 
   // @ts-ignore
   const profileData = useSelector((state) => state.userProfile.user);
+  const {status} = useSession()
 
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [showCopied, setShowCopied] = useState(false);
@@ -76,7 +78,7 @@ export const Header = () => {
             </motion.button>
 
             {/* Wallet Section */}
-            {profileData ? (
+            {profileData || status === "authenticated" ? (
               <div className="relative flex items-center justify-center gap-3">
                 <motion.button
                   whileHover={{ scale: 1.05 }}

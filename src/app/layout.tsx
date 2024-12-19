@@ -8,7 +8,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
-import { GetSiweMessageOptions, RainbowKitSiweNextAuthProvider } from '@rainbow-me/rainbowkit-siwe-next-auth';
+// import { GetSiweMessageOptions, RainbowKitSiweNextAuthProvider } from '@rainbow-me/rainbowkit-siwe-next-auth';
 
 import { darkTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config } from '@/Config/Wagmi';
@@ -59,7 +59,7 @@ export default function RootLayout({
 								<NextAuthProvider>
 				<WagmiProvider config={config}>
 					<QueryClientProvider client={queryClient}>
-						<RainbowKitSiweNextAuthProvider getSiweMessageOptions={getSiweMessageOptions}>
+						{/* <RainbowKitSiweNextAuthProvider getSiweMessageOptions={getSiweMessageOptions}> */}
 							<RainbowKitProvider theme={darkTheme()}>
 									<Provider store={store}>
 										<div
@@ -85,7 +85,7 @@ export default function RootLayout({
 										</div>
 									</Provider>
 							</RainbowKitProvider>
-						</RainbowKitSiweNextAuthProvider>
+						{/* </RainbowKitSiweNextAuthProvider> */}
 					</QueryClientProvider>
 				</WagmiProvider>
 							</NextAuthProvider>

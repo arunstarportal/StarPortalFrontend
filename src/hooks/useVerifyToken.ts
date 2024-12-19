@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
@@ -9,30 +9,27 @@ import { setUserProfileData } from "@/redux/userProfileSlice";
 const useVerifyFromBackend = (sessionToken) => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const [isVerifying, setIsVerifying] = useState(false); 
 
   useEffect(() => {
     const verifyFromBackend = async () => {
-      if (!sessionToken) return;
+      if (!sessionToken || isVerifying) return;
       console.log("Token verification ran!");
 
+      // setIsVerifying(true);
+
       try {
-        // const payload = {
-        //   idToken: sessionToken.accessToken,
-        // };
         const payload = sessionToken.user.message
         ? { message: sessionToken.user.message , signature: sessionToken.user.signature, nonce: sessionToken.user.nonce, address: sessionToken.user.address }
         : { idToken: sessionToken.accessToken };
 
-
-        console.log("🚀 ~ verifyFromBackend ~ payload:", payload)
-
-        
         const response = await axios.post(
           `${BASE_URL}/user/verify_oAuth`,
           payload
         );
-
+        
         const data = response.data;
+        console.log("🚀 ~ verifyFromBackend ~ data:", data)
         if (response.status === 200 && data.message === "Verified") {
           const userData = {
             token: data.token,
@@ -40,21 +37,22 @@ const useVerifyFromBackend = (sessionToken) => {
             sol_Address: data.user.solanaWalletAddress,
             name: data.user.name,
             profileIcon: data.user.picture,
-            is2faEnbaled: false,
+            is2faEnabled: data.user.is2faEnabled,
           };
 
           localStorage.setItem("star_authTokens", JSON.stringify(userData));
           dispatch(setUserProfileData(data));
           router.push("/");
+          setIsVerifying(true);
         }
       } catch (error) {
         console.log("Error during verification:", error);
         signOut();
-      }
+      } 
     };
 
     verifyFromBackend();
-  }, [sessionToken, dispatch, router]);
+  }, [sessionToken, dispatch, router, isVerifying]);
 
   return null; // Hooks don't return UI; use null.
 };

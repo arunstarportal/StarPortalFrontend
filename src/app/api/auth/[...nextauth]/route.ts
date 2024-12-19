@@ -31,8 +31,9 @@ const handler = NextAuth({
 				},
 			},
 			async authorize(credentials) {
+				console.log("🚀 ~ authorize ~ credentials:", credentials)
 				try {
-					const siwe = new SiweMessage(credentials.message);
+					const siwe = new SiweMessage(JSON.parse(credentials?.message || '{}'))
 					console.log('🚀 ~ authorize ~ siwe:', siwe);
 					const fields = await siwe.verify({
 						signature: credentials?.signature || '',
@@ -42,10 +43,10 @@ const handler = NextAuth({
 
 					return {
 						id: fields.data.address,
-            address: fields.data.address,
-            signature: credentials?.signature || '',
-            nonce: fields.data.nonce,
-            message: credentials?.message || '',
+						address: fields.data.address,
+						signature: credentials?.signature || '',
+						nonce: fields.data.nonce,
+						message: credentials?.message || '',
 					};
 				} catch (error) {
 					console.log('siwe ', error);
@@ -74,20 +75,15 @@ const handler = NextAuth({
 		},
 		async jwt({ token, account, profile, user }) {
 			console.log("🚀 ~ jwt ~ user:", user)
-			console.log("🚀 ~ jwt ~ profile:", profile)
-			console.log("🚀 ~ jwt ~ account:", account)
-			console.log("🚀 ~ jwt ~ token:", token)
 			console.log('This jwt part ran');
 
-
-      // Add Ethereum address if SIWE (credentials provider) is used
+			// Add Ethereum address if SIWE (credentials provider) is used
 			if (user?.address) {
 				token.address = user.address;
-        token.signature = user.signature;
-        token.nonce = user.nonce;
-        token.message= user.message;
+				token.signature = user.signature;
+				token.nonce = user.nonce;
+				token.message = user.message;
 			}
-
 
 			// Add Google access token to the JWT
 			if (account) {
@@ -97,19 +93,18 @@ const handler = NextAuth({
 			return token;
 		},
 		async session({ session, token }: { session: any; token: any }) {
+			console.log("🚀 ~ session ~ session:", session)
 			console.log("🚀 ~ session ~ token:", token)
+			console.log("🚀 ~ session ~ token:", token.address)
 			console.log('This sesssion part ran');
 
-
-      // Add Ethereum address to the session if present
+			// Add Ethereum  to the session if present
 			if (token.address) {
 				session.user.address = token.address;
-        session.user.signature = token.signature;
-        session.user.nonce = token.nonce
-        session.user.id = token.id
-        session.user.message  = token.message
+				session.user.signature = token.signature;
+				session.user.nonce = token.nonce;
+				session.user.message = token.message;
 			}
-
 
 			// Add Google access token to the session
 			if (token.accessToken) {
@@ -117,7 +112,6 @@ const handler = NextAuth({
 				session.userId = token.id;
 			}
 
-      
 			return session;
 		},
 	},
