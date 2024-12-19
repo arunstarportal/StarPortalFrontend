@@ -178,6 +178,9 @@ const Page: React.FC = () => {
   );
 };
 
+export default Page;
+
+
 interface Item {
   id: number;
   name: string;
@@ -285,4 +288,4 @@ const AssetsCard = ({
   );
 };
 
-export default Page;
+

@@ -24,7 +24,7 @@ export const verifyFromBackend = async (
         is2faEnbaled: false,
       };
 
-      localStorage.setItem("star_authTokens", JSON.stringify(userData));
+      // localStorage.setItem("star_authTokens", JSON.stringify(userData));
       await dispatch(setUserProfileData(data));
 
       router.push("/");

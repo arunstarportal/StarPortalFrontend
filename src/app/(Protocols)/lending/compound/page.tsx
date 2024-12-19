@@ -343,6 +343,10 @@ const Page = () => {
   );
 };
 
+
+export default Page;
+
+
 const AssetRow = (props: any) => {
   const { executeWrite, error } = useContractWrite();
 
@@ -435,4 +439,4 @@ const AssetRow = (props: any) => {
   );
 };
 
-export default Page;
+
