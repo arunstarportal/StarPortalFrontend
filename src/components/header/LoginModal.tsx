@@ -1,3 +1,4 @@
+"use client";
 import { setUserProfileData } from "@/redux/userProfileSlice";
 import { BASE_URL } from "@/Config";
 import axios from "axios";
@@ -27,12 +28,10 @@ export const Login = ({
   const [is2FaEnable, setIs2FaEnable] = useState(false);
   const [faDetails, setFaDetails] = useState(null);
   const [faCode, setFaCode] = useState("");
-  const [hasWalletBeenHandled, setHasWalletBeenHandled] = useState(
-    () => window.localStorage.getItem("hasWalletBeenHandled") === "true"
-  );
+
+  const [hasWalletBeenHandled, setHasWalletBeenHandled] = useState(false);
 
   const { toast } = useToast();
-
   const { data: sessionToken, status: connectionStatus } = useSession();
   const { connectModalOpen, openConnectModal } = useConnectModal();
   const { address, isConnected } = useAccount();
@@ -40,9 +39,16 @@ export const Login = ({
 
   useVerifyFromBackend(sessionToken);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const walletHandled =
+        localStorage.getItem("hasWalletBeenHandled") === "true";
+      setHasWalletBeenHandled(walletHandled);
+    }
+  }, []);
+
   const handleLogin = async () => {
     try {
-      // const response = await axios.post(`${BASE_URL}/user/login`, {
       const response = await axios.post(`http://localhost:6900/user/login`, {
         emailAddress: email,
         password: password,
@@ -173,7 +179,9 @@ export const Login = ({
   useEffect(() => {
     if (isConnected && !hasWalletBeenHandled) {
       setHasWalletBeenHandled(true);
-      localStorage.setItem("hasWalletBeenHandled", "true");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("hasWalletBeenHandled", "true");
+      }
       handleConnectWallet();
     }
   }, [isConnected]);
@@ -210,10 +218,10 @@ export const Login = ({
           </p>
         </div>
 
-        {is2FaEnable === true ? (
+        {is2FaEnable ? (
           <div className="space-y-4">
             <input
-              type="email"
+              type="text"
               placeholder="Enter Code"
               value={faCode}
               onChange={(e) => setFaCode(e.target.value)}
