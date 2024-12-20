@@ -282,10 +282,12 @@
 // */
 // export default page;
 
-import React from "react";
+import React from 'react'
 
-const page = () => {
-  return <div>page</div>;
-};
+const Uniswap = () => {
+  return (
+    <div>Uniswap</div>
+  )
+}
 
-export default page;
+export default Uniswap

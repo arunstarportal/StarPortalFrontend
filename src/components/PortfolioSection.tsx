@@ -5,7 +5,7 @@ import { useAccount } from "wagmi";
 import axios from "axios";
 import { Wallet } from "lucide-react";
 import { BASE_URL } from "@/Config";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setPortfolioData } from "@/redux/userPortfolioSlice";
 
 // Token types
@@ -27,6 +27,9 @@ const PortfolioSection: React.FC = () => {
   const { address: walletAddress, isConnected } = useAccount();
   const [balances, setBalances] = useState<ChainBalance[]>([]);
   const [grandTotalBalance, setGrandTotalBalance] = useState<number>(0);
+
+  // @ts-ignore
+  const profileData = useSelector((state) => state.userProfile.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -67,14 +70,20 @@ const PortfolioSection: React.FC = () => {
         setBalances(chains);
         setGrandTotalBalance(grandTotal);
       } catch (error) {
-        console.error("Error fetching wallet data:", error);
+        console.log("Error fetching wallet data:", error);
       }
     };
 
-    fetchUserWallet();
+    if (profileData) {
+      fetchUserWallet();
+    }
   }, []);
 
   console.log(balances);
+
+  if (!profileData) {
+    return;
+  }
 
   return (
     <motion.div
@@ -82,7 +91,7 @@ const PortfolioSection: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       className="bg-[#171717] w-[79vw] rounded-2xl px-6 py-4 my-4 shadow-xl border border-gray-500/50 overflow-hidden"
     >
-      <div className="flex items-center justify-between mb-6 mx-4">
+      <div className="flex items-center justify-between mx-4">
         <div className="flex items-center gap-3">
           <Wallet className="w-6 h-6 text-gray-400" />
           <h2 className="text-2xl font-bold text-white">Total Balance</h2>
@@ -95,10 +104,10 @@ const PortfolioSection: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative">
-        <div className="flex justify-around gap-4 overflow-x-scroll scrollbar-hide">
-          {balances.length > 0 &&
-            balances.map((chain, index) => (
+      {balances.length > 0 && (
+        <div className="relative mt-6">
+          <div className="flex justify-around gap-4 overflow-x-scroll scrollbar-hide">
+            {balances.map((chain, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: 20 }}
@@ -128,8 +137,9 @@ const PortfolioSection: React.FC = () => {
                 </div>
               </motion.div>
             ))}
+          </div>
         </div>
-      </div>
+      )}
     </motion.div>
   );
 };

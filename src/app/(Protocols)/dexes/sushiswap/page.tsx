@@ -1,9 +1,8 @@
-"use client";
-import React, { useState } from "react";
+
 import { ArrowDownUp, Info, Settings } from "lucide-react";
 import { Header } from "@/components/header/Header";
 
-const Page = () => {
+const SushiSwap = () => {
   return (
     <div className="min-h-screen p-6 bg-gradient-to-b from-black to-white/10">
       <Header />
@@ -35,6 +34,9 @@ const Page = () => {
     </div>
   );
 };
+
+
+export default SushiSwap;
 
 const SwapComponent = () => {
   return (
@@ -113,4 +115,4 @@ const SwapComponent = () => {
   );
 };
 
-export default Page;
+
