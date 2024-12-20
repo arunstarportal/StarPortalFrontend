@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { TrendingUp, ArrowUpDown, Search } from "lucide-react";
 import { redirect, useRouter } from "next/navigation";
 import { handleSort } from "@/Config/home";
-import PortfolioSection from "@/components/PortfolioSection";
+import PortfolioSection from "@/components/HomePortfolio";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<string>("All");

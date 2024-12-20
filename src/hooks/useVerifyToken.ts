@@ -9,7 +9,7 @@ import { setUserProfileData } from "@/redux/userProfileSlice";
 const useVerifyFromBackend = (sessionToken) => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const [isVerifying, setIsVerifying] = useState(false); 
+  const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
     const verifyFromBackend = async () => {
@@ -20,16 +20,20 @@ const useVerifyFromBackend = (sessionToken) => {
 
       try {
         const payload = sessionToken.user.message
-        ? { message: sessionToken.user.message , signature: sessionToken.user.signature, nonce: sessionToken.user.nonce, address: sessionToken.user.address }
-        : { idToken: sessionToken.accessToken };
+          ? {
+              message: sessionToken.user.message,
+              signature: sessionToken.user.signature,
+              nonce: sessionToken.user.nonce,
+              address: sessionToken.user.address,
+            }
+          : { idToken: sessionToken.accessToken };
 
         const response = await axios.post(
           `${BASE_URL}/user/verify_oAuth`,
           payload
         );
-        
+
         const data = response.data;
-        console.log("🚀 ~ verifyFromBackend ~ data:", data)
         if (response.status === 200 && data.message === "Verified") {
           const userData = {
             token: data.token,
@@ -48,7 +52,7 @@ const useVerifyFromBackend = (sessionToken) => {
       } catch (error) {
         console.log("Error during verification:", error);
         signOut();
-      } 
+      }
     };
 
     verifyFromBackend();
