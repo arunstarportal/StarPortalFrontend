@@ -5,13 +5,8 @@ import { useAccount } from "wagmi";
 import axios from "axios";
 import { Wallet } from "lucide-react";
 import { BASE_URL } from "@/Config";
-
-// Chain configuration types
-interface ChainConfig {
-  name: string;
-  symbol: string;
-  icon: string;
-}
+import { useDispatch } from "react-redux";
+import { setPortfolioData } from "@/redux/userPortfolioSlice";
 
 // Token types
 interface TokenBalance {
@@ -22,77 +17,64 @@ interface TokenBalance {
   usdValue: number;
   usdPrice: number;
 }
-
-// Chain configurations
-const chainConfigs: ChainConfig[] = [
-  {
-    name: "Ethereum",
-    symbol: "ETH",
-    icon: "/eth.png",
-  },
-  {
-    name: "Base",
-    symbol: "ETH",
-    icon: "/svgs/baseColor.svg",
-  },
-  {
-    name: "Arbitrum",
-    symbol: "ETH",
-    icon: "/svgs/arbitriumColor.svg",
-  },
-  {
-    name: "Avalanche",
-    symbol: "AVAX",
-    icon: "/svgs/avalanche.svg",
-  },
-];
+interface ChainBalance {
+  chain: string;
+  image: string;
+  totalBalance: number;
+}
 
 const PortfolioSection: React.FC = () => {
   const { address: walletAddress, isConnected } = useAccount();
-  const [balances, setBalances] = useState<TokenBalance[]>([]);
-  const [totalBalance, setTotalBalance] = useState<number>(0);
+  const [balances, setBalances] = useState<ChainBalance[]>([]);
+  const [grandTotalBalance, setGrandTotalBalance] = useState<number>(0);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchUserWallet = async () => {
       try {
+        const userWallet = JSON.parse(
+          window.localStorage.getItem("star_authTokens")
+        ).eth_Address;
+
+        console.log(userWallet);
+
         const response = await axios.get(
-          `${BASE_URL}/user/getUserTokenBalance?address=${walletAddress}`
+          `${BASE_URL}/user/getUserTokenBalance?address=${userWallet}`
         );
 
         const data = response.data;
 
+        console.log(data);
+
         // Parse data
-        const tokens: TokenBalance[] = [];
-        let total = 0;
+        const chains: ChainBalance[] = [];
+        let grandTotal = 0;
 
         Object.entries(data).forEach(([chain, details]: any) => {
-          if (chain !== "grand_total_balance") {
-            details.tokens.forEach((token: any) => {
-              tokens.push({
-                name: token.name,
-                symbol: token.symbol,
-                icon: token.logo,
-                balance: token.balance,
-                usdValue: token.usd_value,
-                usdPrice: token.usd_price,
-              });
-            });
+          if (chain === "grand_total_balance") {
+            grandTotal = details as number;
           } else {
-            total = details as number;
+            chains.push({
+              chain,
+              image: details.chain_image,
+              totalBalance: details.total_balance || 0,
+            });
           }
         });
 
-        setBalances(tokens);
-        setTotalBalance(total);
+        dispatch(setPortfolioData(data));
+
+        setBalances(chains);
+        setGrandTotalBalance(grandTotal);
       } catch (error) {
         console.error("Error fetching wallet data:", error);
       }
     };
 
-    if (isConnected) {
-      fetchUserWallet();
-    }
+    fetchUserWallet();
   }, []);
+
+  console.log(balances);
 
   return (
     <motion.div
@@ -107,7 +89,7 @@ const PortfolioSection: React.FC = () => {
         </div>
         <div className="flex items-end gap-2">
           <h3 className="text-4xl font-bold text-white">
-            {totalBalance.toFixed(2)}
+            {grandTotalBalance.toFixed(2)}
           </h3>
           <span className="text-gray-400 mb-1">USD</span>
         </div>
@@ -115,35 +97,37 @@ const PortfolioSection: React.FC = () => {
 
       <div className="relative">
         <div className="flex justify-around gap-4 overflow-x-scroll scrollbar-hide">
-          {balances.map((token, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="flex-shrink-0 bg-[#222222] rounded-xl p-4 w-[18rem] hover:bg-[#2a2a2a] transition-colors cursor-pointer group"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="relative w-10 h-10">
-                  <img
-                    src={token.icon}
-                    alt={token.name}
-                    className="w-full h-full rounded-full ring-2 ring-gray-500/20"
-                  />
+          {balances.length > 0 &&
+            balances.map((chain, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex-shrink-0 bg-[#222222] rounded-xl p-4 w-[18rem] hover:bg-[#2a2a2a] transition-colors cursor-pointer group"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="relative w-10 h-10">
+                    <img
+                      src={chain.image}
+                      alt={chain.chain}
+                      className="w-full h-full rounded-full ring-2 ring-gray-500/20"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-medium">
+                      {chain.chain.toUpperCase()}
+                    </h4>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-white font-medium">{token.name}</h4>
-                  <p className="text-gray-500 text-sm">{token.symbol}</p>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors">
+                    {chain.totalBalance.toFixed(4)}
+                  </span>
+                  <span className="text-gray-500 text-sm">Chain Balance</span>
                 </div>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-lg font-bold text-white group-hover:text-purple-400 transition-colors">
-                  {parseFloat(token.balance).toFixed(4)} {token.symbol}
-                </span>
-                <span className="text-gray-500 text-sm">Balance</span>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
         </div>
       </div>
     </motion.div>

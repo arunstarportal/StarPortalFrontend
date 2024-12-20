@@ -48,7 +48,7 @@ export default function Sidebar() {
     <motion.div
       initial={false}
       animate={{ width: isCollapsed ? 80 : 256 }}
-      className="bg-gradient-to-br from-[#282828] via-[#000] to-[#000] h-screen py-5 transition-all duration-500 relative border-r-[0.5px] border-gray-700/50 shadow-2xl flex flex-col z-50"
+      className="bg-black h-screen py-5 transition-all duration-500 relative border-r-[0.5px] border-gray-700/50 shadow-2xl flex flex-col z-50"
     >
       {/* Collapse Button */}
       <motion.button

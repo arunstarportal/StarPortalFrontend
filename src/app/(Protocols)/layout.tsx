@@ -105,7 +105,7 @@ export default function ProtocolsLayout({
   return (
     <div className="relative text-white">
       {/* Subtle Background Pattern */}
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-black to-white/10 -z-10 " />
+      {/* <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-black to-white/10 -z-10 " /> */}
 
       {/* Protocol Header Section */}
       <ProtocolHeader />

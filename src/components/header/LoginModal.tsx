@@ -28,7 +28,8 @@ export const Login = ({
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${BASE_URL}/user/login`, {
+      // const response = await axios.post(`${BASE_URL}/user/login`, {
+      const response = await axios.post(`http://localhost:6900/user/login`, {
         emailAddress: email,
         password: password,
       });
@@ -66,7 +67,13 @@ export const Login = ({
       const data = response.data;
       console.log(data);
       if (response.status === 200) {
-        localStorage.setItem("star_authToken", data.token);
+        const userData = {
+          token: data.token,
+          eth_Address: data.ethereumWalletAddress,
+          sol_Address: data.solanaWalletAddress,
+          is2FaEnable: true,
+        };
+        localStorage.setItem("star_authTokens", JSON.stringify(userData));
         await dispatch(setUserProfileData(data));
         setIsLoginOpen(false);
       }

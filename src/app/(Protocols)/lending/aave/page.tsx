@@ -68,7 +68,7 @@ const Page: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-1 pb-6">
       {/* User's Details */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
         <StatCard
           title="Total Collateral Locked"
           value={formattedCollateral}

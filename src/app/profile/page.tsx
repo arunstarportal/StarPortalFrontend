@@ -335,6 +335,7 @@ import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { BASE_URL } from "@/Config";
 import axios from "axios";
+import { useQuery } from "wagmi/query";
 
 const SettingsPage = () => {
   const [qrImage, setQrImage] = useState(null);
@@ -344,7 +345,7 @@ const SettingsPage = () => {
 
   const enableTwoFA = async () => {
     try {
-      const token = localStorage.getItem("star_authToken");
+      const token = localStorage.getItem("star_authTokens");
       if (!token) {
         console.error("Authorization token is missing.");
         return;
@@ -370,7 +371,7 @@ const SettingsPage = () => {
   };
 
   const confirm2FA = async () => {
-    const token = localStorage.getItem("star_authToken");
+    const token = localStorage.getItem("star_authTokens");
     if (!facode) return;
     try {
       const response = await axios.post(

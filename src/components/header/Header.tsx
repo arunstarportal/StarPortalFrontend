@@ -43,7 +43,6 @@ export const Header = () => {
     const userDetails = window.localStorage.getItem("star_authTokens");
     if (userDetails?.length > 0) {
       // comparing the last login date of the user if fails then disconnect
-      console.log("from the local storage :", userDetails);
       dispatch(setUserProfileData(JSON.parse(userDetails)));
     }
   }, []);
@@ -78,6 +77,14 @@ export const Header = () => {
             {/* Wallet Section */}
             {profileData ? (
               <div className="relative flex items-center justify-center gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative px-3 py-2 z-50 text-white hover:text-white bg-purple-500 rounded-md transition-all duration-300"
+                  onClick={() => router.push("/swap")}
+                >
+                  Swap
+                </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

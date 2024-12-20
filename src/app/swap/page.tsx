@@ -1,156 +1,346 @@
 "use client";
-import React, { useState } from "react";
-import { ArrowDownUp, Settings, Search, TrendingUp } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ArrowDownUp, Info, ChevronUp, Search, X } from "lucide-react";
+import SwapSettings from "@/components/Swap/SwapSetting";
+import axios from "axios";
+import SelectTokenModal from "@/components/Swap/TokenModal";
+import { BASE_URL } from "@/Config";
+import { useSelector } from "react-redux";
 
-const Swap = () => {
+const NativeChainSwap = () => {
+  const [fromToken, setFromToken] = useState(null);
+  const [toToken, setToToken] = useState(null);
+
+  // @ts-ignore
+  const userPortfolio = useSelector((state) => state.userPortfolio);
+
+  const [toTokenAmount, setToTokenAmount] = useState("");
+  const [fromTokenAmount, setfromTokenAmount] = useState("");
   const [activeTab, setActiveTab] = useState("Market");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(null);
+
+  const [fromTokenBalance, setFromTokenBalance] = useState(null);
+  const [toTokenBalance, setToTokenBalance] = useState(null);
+
+  const [solanaQuote, setSolanaQuote] = useState(null);
+
+  console.log(solanaQuote);
+
+  const findTokenBalance = (token) => {
+    console.log(userPortfolio, token);
+
+    if (!token || !userPortfolio.data) return 0;
+
+    let coin;
+    Object.entries(userPortfolio.data).forEach(([chain, details]: any) => {
+      if (chain === token.asset_platform_id) {
+        coin = details.tokens.find(
+          (item) => item.symbol === token.symbol.toUpperCase()
+        );
+      }
+    });
+    return coin?.balance || 0;
+  };
+
+  // Token Selection Modal Handler
+  const openTokenModal = (type: any) => {
+    setModalType(type);
+    setIsTokenModalOpen(true);
+  };
+
+  const handleSwap = async () => {
+    const token = JSON.parse(localStorage.getItem("star_authTokens")).token;
+
+    if (fromToken.asset_platform_id === "solana") {
+      try {
+        const payload = {
+          quoteResponse: solanaQuote,
+        };
+        const response = await axios.post(`${BASE_URL}/swap/solana`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      const payload = {
+        chainId: fromToken.asset_platform_id,
+        fromToken: fromToken.contract_address,
+        fromDecimal:
+          fromToken.detail_platforms[fromToken.asset_platform_id].decimal_place,
+        toToken: toToken.contract_address,
+        toDecimal:
+          toToken.detail_platforms[toToken.asset_platform_id].decimal_place,
+        amountOfFromToken: fromTokenAmount,
+        slippage: 5,
+      };
+
+      try {
+        const response = await axios.post(
+          `http://localhost:6900/swap/evm`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = response.data;
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const handleNativeSwap = async () => {
+    try {
+      const payload = {};
+      const response = await axios.post(
+        `http://localhost:6900/swap/evm`,
+        payload
+      );
+      const data = response.data;
+      console.log(data);
+    } catch (error) {}
+  };
+
+  const handleQuoting = async () => {
+    try {
+      const body = {
+        chainId: fromToken.asset_platform_id,
+        fromToken: fromToken.contract_address,
+        fromDecimal:
+          fromToken.detail_platforms[fromToken.asset_platform_id].decimal_place,
+        toToken: toToken.contract_address,
+        toDecimal:
+          toToken.detail_platforms[toToken.asset_platform_id].decimal_place,
+        amountOfFromToken: fromTokenAmount,
+        slippage: 5,
+      };
+
+      const response = await axios.post(`${BASE_URL}/swap/quote`, body);
+
+      const data = await response.data;
+      if (response.status === 200) {
+        if (fromToken.asset_platform_id === "solana") {
+          setSolanaQuote(data);
+
+          const rawOutAmount = data?.amount.outAmount || 0;
+          const convertedOutAmount =
+            Number(rawOutAmount) / 10 ** Number(body.toDecimal);
+
+          setToTokenAmount(convertedOutAmount.toString());
+
+          return;
+        }
+        setToTokenAmount(data.amount);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleTokenSelection = (type, token) => {
+    if (type === "from") {
+      console.log("from : ", token);
+
+      setFromToken(token);
+      const balance = findTokenBalance(token);
+      setFromTokenBalance(balance);
+    } else if (type === "to") {
+      setToToken(token);
+      setToTokenBalance(findTokenBalance(token));
+    }
+    setIsTokenModalOpen(false);
+  };
 
   return (
-    <div className="bg-black p-6 text-white">
-      {/* Header with Subtle Animation */}
-      <div className="flex items-center justify-between mb-8 animate-fade-in">
-        <h1 className="text-4xl font-bold text-white">Token Swap</h1>
-        <div className="flex items-center space-x-4">
-          <button className="bg-gray-800/50 hover:bg-gray-700/50 p-2.5 rounded-full transition-all duration-300 ease-in-out transform hover:scale-110">
-            <Settings className="text-gray-300 w-5 h-5" />
-          </button>
-        </div>
-      </div>
+    <div className="h-[89vh] flex items-center justify-center text-white ">
+      <div className="w-full rounded-3xl shadow-2xl p-60">
+        {/* Header with Chain Selection */}
+        <h1 className="text-3xl font-bold mb-4 text-center text-white">
+          Token Swap
+        </h1>
 
-      {/* Tab Navigation with Animated Indicator */}
-      <div className="flex items-center gap-4 mb-6 relative">
-        {["Market", "Limit", "Convert"].map((tab) => (
+        {/* Swap Header  */}
+        <div className="flex items-center justify-between my-4 bg-gray-800/50 px-4 py-4 rounded-xl">
+          <div className="flex items-center gap-4 relative">
+            {["Market", "Limit", "Convert"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 relative
+                ${
+                  activeTab === tab
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                    : "bg-gray-700/50 text-gray-400 hover:bg-gray-800/50"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+          <SwapSettings />
+        </div>
+        <div className="flex items-center justify-center gap-4">
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 relative
-              ${
-                activeTab === tab
-                  ? "bg-gray-700 text-white"
-                  : "bg-gray-900/50 text-gray-400 hover:bg-gray-800/50"
-              }`}
+            className="text-white px-3 py-1 border"
+            onClick={handleQuoting}
           >
-            {tab}
-            {activeTab === tab && (
-              <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 w-2/3 bg-gray-200 rounded-full"></span>
-            )}
+            Get Quotes
           </button>
-        ))}
-      </div>
-
-      {/* Search and Swap Container */}
-      <div className="bg-gray-900/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-800/50 shadow-2xl">
-        {/* Search Input with Icon */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search tokens or paste contract address"
-            className="w-full pl-10 pr-4 py-3 bg-gray-800/50 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-600/50 transition-all duration-300"
-          />
+          <button className="border px-3 py-1" onClick={handleNativeSwap}>
+            Get Native Swap
+          </button>
         </div>
 
-        {/* Swap Section */}
-        <div className="relative">
-          {/* From Token */}
-          <div className="bg-gray-800/50 rounded-lg p-4 mb-2">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-400 text-xs">From</span>
-              <span className="text-gray-400 text-xs">Balance: 0.00</span>
-            </div>
-            <div className="flex items-center justify-between">
+        {/* Swap Component  */}
+        <div className="relative border border-purple-500/30 rounded-xl my-4 p-3 bg-gray-800/50">
+          {/* From Token Selection */}
+          <div className="bg-gray-700/30 rounded-xl p-4 mb-4">
+            <p className="mb-3 text-xl font-medium text-gray-300">Sell</p>
+
+            <div className="flex items-center space-x-4">
               <input
                 type="number"
                 placeholder="0.0"
-                className="bg-transparent text-2xl font-bold w-full focus:outline-none text-white"
+                value={fromTokenAmount}
+                onChange={(e) => setfromTokenAmount(e.target.value)}
+                className="flex-grow bg-gray-800 px-3 py-2 text-2xl font-bold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <button className="bg-gray-700/30 text-gray-300 px-3 py-1 rounded-full text-sm">
-                MAX
+              <button
+                onClick={() => openTokenModal("from")}
+                className="flex items-center justify-center gap-2 border border-purple-500/50 rounded-full px-3 py-1 hover:bg-gray-700 transition-colors"
+              >
+                {fromToken ? (
+                  <div className="flex items-center justify-between gap-2">
+                    <img
+                      src={fromToken.image.small}
+                      alt=""
+                      className="w-6 h-6 mix-blend-screen"
+                    />
+                    <p className="text-sm font-medium text-white">
+                      {fromToken.symbol.toUpperCase()}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p>Select Token</p>
+                    <ChevronUp size={17} />
+                  </>
+                )}
               </button>
             </div>
+
+            <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+              <span>$ 0.00</span>
+              <span>
+                Balance:{" "}
+                {fromTokenBalance ? Number(fromTokenBalance).toFixed(4) : 0}
+              </span>
+            </div>
+
+            {fromToken && (
+              <div className="mt-2 text-xs text-gray-500">
+                {fromToken.name} ({fromToken.symbol})
+              </div>
+            )}
           </div>
 
-          {/* Swap Icon */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-            <button className="bg-gray-500 p-2 rounded-lg hover:bg-gray-800/50 transition-all duration-300">
-              <ArrowDownUp className="text-gray-100" />
+          {/* Swap Direction */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center my-4">
+            <button className="bg-gray-700 p-2 rounded-full hover:rotate-180 transition-transform">
+              <ArrowDownUp className="text-gray-300" />
             </button>
           </div>
 
-          {/* To Token */}
-          <div className="bg-gray-800/50 rounded-lg p-4 mt-2">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-400 text-xs">To</span>
-              <span className="text-gray-400 text-xs">Balance: 0.00</span>
-            </div>
-            <div className="flex items-center justify-between">
+          {/* To Token Selection */}
+          <div className="bg-gray-700/30 rounded-xl p-4">
+            <p className="mb-3 text-xl font-medium text-gray-300">Receive</p>
+
+            <div className="flex items-center space-x-4">
               <input
                 type="number"
                 placeholder="0.0"
-                className="bg-transparent text-2xl font-bold w-full focus:outline-none text-white"
-                disabled
+                value={toTokenAmount}
+                onChange={(e) => setToTokenAmount(e.target.value)}
+                className="flex-grow bg-gray-800 px-3 py-2 text-2xl font-bold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <button
+                onClick={() => openTokenModal("to")}
+                className="flex items-center justify-center gap-2 border border-purple-500/50 rounded-full px-3 py-1 hover:bg-gray-700 transition-colors"
+              >
+                {toToken ? (
+                  <div className="flex items-center justify-between gap-2">
+                    <img
+                      src={toToken.image.small}
+                      alt=""
+                      className="w-6 h-6 mix-blend-screen"
+                    />
+                    <p className="text-sm font-medium text-white">
+                      {toToken.symbol.toUpperCase()}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p>Select Token</p>
+                    <ChevronUp size={17} />
+                  </>
+                )}
+              </button>
             </div>
+
+            <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+              <span>$ 0.00</span>
+              <span>
+                Balance:{" "}
+                {toTokenBalance ? Number(toTokenBalance).toFixed(4) : "0.00"}
+              </span>
+            </div>
+
+            {toToken && (
+              <div className="mt-2 text-xs text-gray-500">
+                {toToken.name} ({toToken.symbol})
+              </div>
+            )}
           </div>
         </div>
 
         {/* Swap Button */}
-        <button className="w-full bg-gradient-to-r from-gray-700 to-gray-900 py-4 rounded-lg text-white font-bold hover:from-gray-800 hover:to-black transition-all duration-300 transform hover:scale-[1.02] mt-4">
-          {/* Connect Wallet */}
+        <button
+          // disabled={!fromToken || !toToken || !amount}
+          onClick={handleSwap}
+          className={`w-full py-4 rounded-xl font-bold transition-all uppercase tracking-wider ${
+            !fromToken || !toToken
+              ? "bg-gray-700 cursor-not-allowed"
+              : "bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 hover:scale-[1.02]"
+          }`}
+        >
           Swap
         </button>
-      </div>
 
-      {/* Trending Tokens Section */}
-      <div className="mt-8">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="text-green-500" />
-          <h2 className="text-lg font-semibold">Trending by 24H Volume</h2>
+        {/* Additional Info */}
+        <div className="mt-4 text-center text-xs text-gray-500 flex items-center justify-center">
+          <Info className="mr-2 w-4 h-4" />
+          Swap between tokens on the same chain
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          {TRENDING_TOKENS.map((token) => (
-            <div
-              key={token.name}
-              className="bg-gray-800/50 backdrop-blur-lg rounded-lg p-3 hover:bg-gray-700/50 transition-all duration-300 transform hover:scale-[1.03]"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={token.icon}
-                    alt={token.name}
-                    className="w-10 h-10 rounded-full border-2 border-gray-700"
-                  />
-                  <div>
-                    <p className="font-semibold text-sm">{token.name}</p>
-                    <p className="text-xs text-gray-400">{token.price}</p>
-                  </div>
-                </div>
-                <p
-                  className={`text-sm font-bold ${
-                    token.change > 0 ? "text-green-500" : "text-red-500"
-                  }`}
-                >
-                  {token.change > 0 ? `+${token.change}%` : `${token.change}%`}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+
+        {/* Token Selection Modal (if needed) */}
+        {isTokenModalOpen && (
+          <SelectTokenModal
+            isOpen={isTokenModalOpen}
+            onClose={() => setIsTokenModalOpen(false)}
+            type={modalType}
+            onSelect={(token) => handleTokenSelection(modalType, token)}
+          />
+        )}
       </div>
     </div>
   );
 };
 
-// Example Token Data
-const TRENDING_TOKENS = [
-  { name: "WBTC", price: "$281.2M", change: 291, icon: "/wbtc.png" },
-  { name: "ARB", price: "$177.8M", change: 135, icon: "/arb.png" },
-  { name: "LINK", price: "$123.3M", change: 48.1, icon: "/link.png" },
-  { name: "WETH", price: "$43.0M", change: 549, icon: "/weth.png" },
-  { name: "PEPE", price: "$45.3M", change: 102, icon: "/pepe.png" },
-];
-
-export default Swap;
+export default NativeChainSwap;
