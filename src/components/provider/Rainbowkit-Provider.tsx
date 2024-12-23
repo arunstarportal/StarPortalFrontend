@@ -12,10 +12,11 @@ import {
 
 } from "@solana/wallet-adapter-wallets";
 import '@solana/wallet-adapter-react-ui/styles.css';
+import { BASE_URL } from '@/Config';
 
 const RainbowKitProviderWrapper = ({ children }) => {
 
-    const endpoint = "http://localhost:3000"; // local cluster override
+    const endpoint = BASE_URL; // local cluster override
   
     const wallets = useMemo( () => [
       new PhantomWalletAdapter(),

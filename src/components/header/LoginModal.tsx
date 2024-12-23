@@ -49,7 +49,7 @@ export const Login = ({
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`http://localhost:6900/user/login`, {
+      const response = await axios.post(`${BASE_URL}/user/login`, {
         emailAddress: email,
         password: password,
       });
