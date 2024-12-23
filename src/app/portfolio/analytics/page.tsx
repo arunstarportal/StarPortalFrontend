@@ -177,7 +177,7 @@ const AnalyticsPage = () => {
         </div>
 
         {/* Asset Allocation */}
-        <div className="bg-[#141414] border-[.5px] border-gray-500/50 rounded-xl p-6">
+        <div className="bg-card border-[.5px] border-gray-500/50 rounded-xl p-6">
           <h2 className="text-xl font-bold mb-6">Asset Allocation</h2>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -200,6 +200,7 @@ const AnalyticsPage = () => {
                     backgroundColor: "#1a1a1a",
                     border: "1px solid #333",
                     borderRadius: "8px",
+                    color: "white",
                   }}
                 />
               </RePieChart>

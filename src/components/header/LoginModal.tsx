@@ -176,15 +176,15 @@ export const Login = ({
     }
   };
 
-  useEffect(() => {
-    if (isConnected && !hasWalletBeenHandled) {
-      setHasWalletBeenHandled(true);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("hasWalletBeenHandled", "true");
-      }
-      handleConnectWallet();
-    }
-  }, [isConnected]);
+  // useEffect(() => {
+  //   if (isConnected && !hasWalletBeenHandled) {
+  //     setHasWalletBeenHandled(true);
+  //     if (typeof window !== "undefined") {
+  //       localStorage.setItem("hasWalletBeenHandled", "true");
+  //     }
+  //     handleConnectWallet();
+  //   }
+  // }, [isConnected]);
 
   if (!isOpen) return null;
 

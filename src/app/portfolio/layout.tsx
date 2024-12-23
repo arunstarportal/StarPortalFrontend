@@ -19,7 +19,9 @@ export default function ProtocolsLayout({
             <h1 className="text-2xl font-bold mb-2">
               {path.split("/")[2] === "summary"
                 ? "Portfolio Overview"
-                : "Transaction History"}
+                : path.split("/")[2] === "history"
+                  ? "Transaction History"
+                  : "Portfolio Analysis"}
             </h1>
             <p className="text-gray-400">
               Track your crypto assets across multiple chains

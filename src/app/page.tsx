@@ -7,12 +7,16 @@ import { TrendingUp, ArrowUpDown, Search } from "lucide-react";
 import { redirect, useRouter } from "next/navigation";
 import { handleSort } from "@/Config/home";
 import PortfolioSection from "@/components/HomePortfolio";
+import { useSelector } from "react-redux";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState<string>("All");
   const [sortBy, setSortBy] = useState<"revenue" | "tvl" | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  // @ts-ignore
+  const profileData = useSelector((state) => state.userProfile.user);
+
   const router = useRouter();
 
   // const { data: sessionToken, status: connectionStatus } = useSession({
@@ -45,7 +49,7 @@ export default function Page() {
   return (
     <div className="relative bg-gradient-to-b from-[#000] via-[#28282878] to-[#000] text-gray-200">
       <div className="max-w-7xl mx-auto">
-        <PortfolioSection />
+        {profileData && <PortfolioSection />}
 
         <div className="space-y-8 my-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

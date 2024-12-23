@@ -101,8 +101,8 @@ const PortfolioSection: React.FC = () => {
         <div className="flex items-center gap-3">
           <Wallet className="w-6 h-6 text-gray-400" />
           <h2
-            onClick={() => router.push("/portfolio")}
-            className="text-2xl font-bold text-white hover:text-purple-300 duration-300 cursor-pointer"
+            onClick={() => router.push("/portfolio/summary")}
+            className="text-2xl font-bold text-white hover:text-purple-500 duration-300 cursor-pointer"
           >
             Total Chain Balances
           </h2>
