@@ -182,7 +182,7 @@ export const DepositeModal = ({ isOpen, onClose, setIsLoginOpen }) => {
 	};
 
 	const copyToClipboard = () => {
-		navigator.clipboard.writeText(userDetails.data.walletAddressEthereum);
+		navigator.clipboard.writeText(userDetails.data.walletAddressEvm);
 		setShowCopied(true);
 		setTimeout(() => setShowCopied(false), 2000);
 	};
@@ -207,7 +207,7 @@ export const DepositeModal = ({ isOpen, onClose, setIsLoginOpen }) => {
 
 	const handleDeposit = async () => {
 		const destinationAddr =
-			manualAddress || userDetails?.user?.walletAddressEthereum;
+			manualAddress || userDetails?.user?.walletAddressEvm;
 
 		if (selectedChains === 'solana') {
 			try {
@@ -245,7 +245,7 @@ export const DepositeModal = ({ isOpen, onClose, setIsLoginOpen }) => {
 				sendTransaction({
 					chainId: CurrentChainID,
 					from: address,
-					to: userDetails.user.walletAddressEthereum,
+					to: userDetails.user.walletAddressEvm,
 					value: parseEther(depositAmount),
 				});
 			} catch (error) {

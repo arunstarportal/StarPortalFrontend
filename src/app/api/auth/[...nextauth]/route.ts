@@ -57,6 +57,8 @@ const handler = NextAuth({
 
   callbacks: {
     async signIn({ account, profile }) {
+      console.log("🚀 ~ signIn ~ profile:", profile)
+      console.log("🚀 ~ signIn ~ account:", account)
       console.log("This signIn part ran");
 
       // Custom sign-in logic
@@ -73,6 +75,10 @@ const handler = NextAuth({
       return false;
     },
     async jwt({ token, account, profile, user }) {
+      console.log("🚀 ~ jwt ~ user:", user)
+      console.log("🚀 ~ jwt ~ profile:", profile)
+      console.log("🚀 ~ jwt ~ account:", account)
+      console.log("🚀 ~ jwt ~ token:", token)
       // Add Ethereum address if SIWE (credentials provider) is used
       if (user?.address) {
         token.address = user.address;
@@ -89,6 +95,8 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
+      console.log("🚀 ~ session ~ session:", session)
+      console.log("🚀 ~ session ~ token:", token)
       // Add Ethereum  to the session if present
       if (token.address) {
         session.user.address = token.address;
