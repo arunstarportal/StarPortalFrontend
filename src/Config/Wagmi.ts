@@ -1,6 +1,7 @@
 "use client";
 import {
   coin98Wallet,
+  coinbaseWallet,
   ledgerWallet,
   metaMaskWallet,
   rainbowWallet,
@@ -38,6 +39,7 @@ const connectors = connectorsForWallets(
         rainbowWallet,
         walletConnectWallet,
         coin98Wallet,
+        coinbaseWallet
       ],
     },
     {
