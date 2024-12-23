@@ -5,6 +5,7 @@ import {
   Settings,
   Info,
   ChevronDown,
+  ArrowDownUp,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -161,6 +162,16 @@ const SwapSettings = () => {
             </div>
           </div>
         )}
+      </button>
+    </div>
+  );
+};
+
+export const SwapDirection = () => {
+  return (
+    <div className="absolute  top-1/2 left-1/2 -translate-x-1/2 -translate-y-[75%] flex justify-center">
+      <button className="bg-card p-4 rounded-full hover:rotate-180 duration-300 hover:ring-1 ring-purple-500/60">
+        <ArrowDownUp className="text-gray-300" />
       </button>
     </div>
   );

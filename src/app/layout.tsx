@@ -2,7 +2,7 @@
 import './globals.css';
 import { motion } from 'framer-motion';
 
-import '@rainbow-me/rainbowkit/styles.css';
+import "@rainbow-me/rainbowkit/styles.css";
 
 import Sidebar from '@/components/Sidebar';
 import { Header } from '@/components/header/Header';
@@ -15,9 +15,9 @@ import { Toaster } from '@/components/ui/toaster';
 import RainbowKitProviderWrapper from '@/components/provider/Rainbowkit-Provider';
 
 export default function RootLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
 	const pathname = usePathname();
 	const isSignupRoute = pathname === '/auth/signup';

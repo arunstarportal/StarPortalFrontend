@@ -63,7 +63,6 @@ export const DepositeModal = ({ isOpen, onClose, setIsLoginOpen }) => {
 	const [selectedNetwork, setSelectedNetwork] = useState<string | undefined>(undefined);
 	const [showCopied, setShowCopied] = useState(false);
 	const [selectedChains, setSelectedChains] = useState('');
-	console.log("🚀 ~ DepositeModal ~ selectedChains:", selectedChains)
 	const [solanaBalance, setSolanaBalance] = useState('0');
 	const [depositAmount, setDepositAmount] = useState('0.001');
 	const [manualAddress, setManualAddress] = useState('');

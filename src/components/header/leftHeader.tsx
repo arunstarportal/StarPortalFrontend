@@ -59,7 +59,7 @@ export const LeftHeader = () => {
   };
 
   return (
-    <div className="relative flex-1 max-w-xl" ref={searchContainerRef}>
+    <div className="relative flex-1 max-w-xl " ref={searchContainerRef}>
       <motion.div className="relative">
         <motion.div
           whileHover={{ scale: 1.005 }}
@@ -68,14 +68,14 @@ export const LeftHeader = () => {
           <input
             ref={inputRef}
             type="text"
-            className="text-white w-full pl-12 pr-14 py-3 bg-[#171717] rounded-xl border border-gray-800 focus:border-purple-500/50 outline-none transition-all duration-300"
+            className="text-white ml-5 w-full pl-12 pr-14 py-2 bg-black rounded-xl border border-borderlight focus:border-purple-500/50 outline-none transition-all duration-300"
             placeholder="Search protocols, tokens, addresses..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={() => setIsInputFocused(true)}
           />
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <Search className="absolute left-8 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           {searchTerm && (
             <motion.button
               initial={{ opacity: 0 }}

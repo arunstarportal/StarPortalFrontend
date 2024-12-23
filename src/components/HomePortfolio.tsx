@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useAccount } from "wagmi";
+import { useAccount, useProof } from "wagmi";
 import axios from "axios";
 import { Wallet } from "lucide-react";
 import { BASE_URL } from "@/Config";
 import { useDispatch, useSelector } from "react-redux";
 import { setPortfolioData } from "@/redux/userPortfolioSlice";
+import { useRouter } from "next/navigation";
+import { BarLoader } from "react-spinners";
 
 // Token types
 interface TokenBalance {
@@ -24,13 +26,38 @@ interface ChainBalance {
 }
 
 const PortfolioSection: React.FC = () => {
-  const { address: walletAddress, isConnected } = useAccount();
   const [balances, setBalances] = useState<ChainBalance[]>([]);
   const [grandTotalBalance, setGrandTotalBalance] = useState<number>(0);
+  const router = useRouter();
 
   // @ts-ignore
   const profileData = useSelector((state) => state.userProfile.user);
+
+  // @ts-ignore
+  const userPortfolio = useSelector((state) => state.userPortfolio);
   const dispatch = useDispatch();
+
+  const parseTokens = async (data) => {
+    const chains: ChainBalance[] = [];
+    let grandTotal = 0;
+
+    Object.entries(data).forEach(([chain, details]: any) => {
+      if (chain === "grand_total_balance") {
+        grandTotal = details as number;
+      } else {
+        chains.push({
+          chain,
+          image: details.chain_image,
+          totalBalance: details.total_balance || 0,
+        });
+      }
+    });
+
+    dispatch(setPortfolioData(data));
+
+    setBalances(chains);
+    setGrandTotalBalance(grandTotal);
+  };
 
   useEffect(() => {
     const fetchUserWallet = async () => {
@@ -39,47 +66,26 @@ const PortfolioSection: React.FC = () => {
           window.localStorage.getItem("star_authTokens")
         ).eth_Address;
 
-        console.log(userWallet);
-
         const response = await axios.get(
           `${BASE_URL}/user/getUserTokenBalance?address=${userWallet}`
         );
 
         const data = response.data;
-
-        console.log(data);
-
-        // Parse data
-        const chains: ChainBalance[] = [];
-        let grandTotal = 0;
-
-        Object.entries(data).forEach(([chain, details]: any) => {
-          if (chain === "grand_total_balance") {
-            grandTotal = details as number;
-          } else {
-            chains.push({
-              chain,
-              image: details.chain_image,
-              totalBalance: details.total_balance || 0,
-            });
-          }
-        });
-
-        dispatch(setPortfolioData(data));
-
-        setBalances(chains);
-        setGrandTotalBalance(grandTotal);
+        if (response.status === 200) {
+          parseTokens(data);
+        }
       } catch (error) {
         console.log("Error fetching wallet data:", error);
       }
     };
 
-    if (profileData) {
+    if (profileData && !userPortfolio.data) {
+      console.log("Fetching portfolio");
       fetchUserWallet();
+    } else if (userPortfolio.data) {
+      parseTokens(userPortfolio.data);
     }
-  }, []);
-
-  console.log(balances);
+  }, [profileData]);
 
   if (!profileData) {
     return;
@@ -89,12 +95,17 @@ const PortfolioSection: React.FC = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#171717] w-[79vw] rounded-2xl px-6 py-4 my-4 shadow-xl border border-gray-500/50 overflow-hidden"
+      className="bg-[#141414] w-[79vw] rounded-2xl px-6 py-4 my-4 shadow-xl border border-gray-500/50 overflow-hidden"
     >
       <div className="flex items-center justify-between mx-4">
         <div className="flex items-center gap-3">
           <Wallet className="w-6 h-6 text-gray-400" />
-          <h2 className="text-2xl font-bold text-white">Total Balance</h2>
+          <h2
+            onClick={() => router.push("/portfolio/summary")}
+            className="text-2xl font-bold text-white hover:text-purple-500 duration-300 cursor-pointer"
+          >
+            Total Chain Balances
+          </h2>
         </div>
         <div className="flex items-end gap-2">
           <h3 className="text-4xl font-bold text-white">
@@ -104,7 +115,7 @@ const PortfolioSection: React.FC = () => {
         </div>
       </div>
 
-      {balances.length > 0 && (
+      {balances.length > 0 ? (
         <div className="relative mt-6">
           <div className="flex justify-around gap-4 overflow-x-scroll scrollbar-hide">
             {balances.map((chain, index) => (
@@ -138,6 +149,10 @@ const PortfolioSection: React.FC = () => {
               </motion.div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="w-full flex items-center justify-center my-2">
+          <BarLoader color="#fff" width={200} height={2} />
         </div>
       )}
     </motion.div>

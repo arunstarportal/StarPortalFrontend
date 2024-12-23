@@ -48,21 +48,21 @@ export default function Sidebar() {
     <motion.div
       initial={false}
       animate={{ width: isCollapsed ? 80 : 256 }}
-      className="bg-black h-screen py-5 transition-all duration-500 relative border-r-[0.5px] border-gray-700/50 shadow-2xl flex flex-col z-50"
+      className=" bg-defaultBackground h-screen py-5 transition-all duration-500 relative border-r-[0.5px] border-gray-700/50 shadow-2xl flex flex-col z-50"
     >
       {/* Collapse Button */}
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-5 -right-4 text-white border border-gray-900 flex items-center justify-center rounded-full w-7 h-7 bg-gray-800/60 hover:bg-gray-700 transition-colors"
+        className="absolute z-50 outline-none  top-5 -right-3 text-defaultText border border-gray-500/60 flex items-center justify-center rounded-full w-7 h-7 bg-black transition-colors"
       >
         {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </motion.button>
 
       {/* Logo */}
       <motion.div
-        className="text-white border-b-[0.5px] border-gray-700/70 px-5 pb-5 flex items-center justify-center"
+        className="text-white border-b-[0.5px] border-gray-700/70 px-5 pb-5 pt-1 flex items-center justify-center"
         whileHover={{ scale: 1.02 }}
       >
         <motion.img
@@ -95,18 +95,18 @@ export default function Sidebar() {
       )}
 
       {/* Chains Section */}
-      <div className="px-5 mb-2 overflow-hidden">
+      <div className="px-5 mb-2 overflow-hidden ">
         <div
           className={`text-gray-300 py-3 flex items-center gap-3 transition-all duration-300 ${
             isCollapsed ? "justify-center" : "justify-between"
           }`}
         >
           {!isCollapsed && <p className="font-semibold text-sm">NETWORKS</p>}
-          <img src="/svgs/chain.svg" alt="Chains Icon" className="w-4 h-4" />
+          <p className="text-defaultText font-medium">Chains</p>
         </div>
 
         {/* Chain List */}
-        <ul className="space-y-2">
+        <ul className="space-y-2  overflow-y-scroll">
           {SidebarData.map((chain, index) => (
             <motion.li
               key={index}
@@ -156,16 +156,6 @@ export default function Sidebar() {
               )}
 
               {/* Tooltip for collapsed state */}
-              {isCollapsed && isHovered === index && (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="absolute left-full ml-2 px-3 py-2 bg-gray-800 rounded-lg text-sm text-white whitespace-nowrap z-50"
-                >
-                  {chain.label}
-                  <div className="text-xs text-gray-400">TVL: {chain.tvl}</div>
-                </motion.div>
-              )}
             </motion.li>
           ))}
         </ul>
